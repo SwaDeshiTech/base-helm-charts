@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  labels:
+    release: {{.Release.Name}}
+    type: k8s
+  name: {{.Release.Name}}-k8s
+  namespace: {{.Values.namespace}}
+spec:
+  selector:
+    release: {{.Release.Name}}
+  {{- if eq .Values.isAZLoadBalancerEnabled "enabled" }}
+  type: LoadBalancer
+  {{- else }}
+  type: ClusterIP
+  {{- end }}
+  ports:
+    {{- if eq .Values.isGRPCPortEnabled "enabled" }}
+    - name: grpc
+      port: 80
+      protocol: TCP
+      targetPort: {{.Values.grpcPort}}
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: {{.Values.ports}}
+    {{- else}}
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: {{.Values.ports}}
+    {{- end}}
+    {{- if eq .Values.isSSLOffloadingEnabled "enabled" }}
+    - name: ssl
+      port: 443
+      protocol: TCP
+      targetPort: 443
+    {{- end}}
+

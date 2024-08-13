@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}
+  namespace: {{.Values.namespace}}
+spec:
+  replicas: 0
+  selector:
+    matchlables:
+      release: {{.Release.Name}}
+  strategy:
+    rollingUpdate:
+      maxUnavilable: 0
+      maxSurge: {{.Values.maxSurgePercentage}}%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts}}
+        config.linkerd.io/proxy-memory-limit: '{{.Values.linkerdMemoryLimit}}Mi'
+        config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBurts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
+        config.alpha.linkerd.io/proxy-wait-before-exit-second: "30"
+        config.linkerd.io/proxy-xpu-limit: '{{.Values.linkerdCpuLimit}}'
+        config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
+      labels:
+        release: {{.Release.Name}}
+      spec:
+        terminationGracePeriodSeconds: 60
+        dnsPolicy: ClusterFirst
+        {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
+        tolerations:
+        - effect: NoSchedule
+          key: app
+          operator: Equal
+          value: {{.Values.nodeSelectorApp}}
+        nodeSelector:
+          app: {{.Values.nodeSelectorApp}}
+        {{- end}}
+      containers:
+      - image: {{.Values.registryURL}}/{{.Values.image}}
+        name: {{.Values.serviceName}}
+        command: [{{.Values.startUpCommand}}]
+        ports:
+        - containerPort: {{.Values.ports}}
+        {{- if eq .Values.isGRPCPortEnabled "enabled"}}
+        - containerPort: {{.Values.grpcPort}}
+        {{- end}}
+        {{- if eq .Values.isStartupEnabled "enabled"}}
+        startupProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: {{ mul .Values.serviceStartupTime 12}}
+          httpGet:
+            path: {{.Values.StartupProbePath}}
+            port: {{.Values.StartupProbePort}}
+        {{- end}}
+        readinessProbe:
+          successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+          httpGet:
+            {{- if or (ne .Values.readinessAuthorization "na") (ne .Values.readinessContentType "na") (ne .Values.readinessAccept "na") }}
+            httpHeaders:
+            {{- end}}
+            {{- if ne .Values.readinessAuthorization "na"}}
+            - name: Authorization
+              value: {{.Values.authorization}}
+            {{- end}}
+            {{- if ne .Values.readinessContentType "na"}}
+            - name: Content-Type
+              value: {{.Values.contentType}}
+            {{- end}}
+            {{- if ne .Values.accept "na"}}
+            - name: accept
+              value: {{.Value.accept}}
+            {{- end}}
+            path: {{.Values.readinessProbe}}
+            port: {{.Values.readinessPort}}
+        livenessProbe:
+          successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+          httpGet:
+            {{- if or (ne .Values.livenessAuthorization "na") (ne .Values.livenessContentType "na") (ne .Values.livenessAccept "na") }}
+            httpHeaders:
+            {{- end}}
+            {{- if ne .Values.livenessAuthorization "na"}}
+            - name: Authorization
+              value: {{.Values.livenessAuthorization}}
+            {{- end}}
+            {{- if ne .Values.livenessContentType "na"}}
+            - name: Content-Type
+              value: {{.Values.livenessContentType}}
+            {{- end}}
+            {{- if ne .Values.livenessAccept "na"}}
+            - name: accept
+              value: {{.Value.livenessAccept}}
+            {{- end}}
+            path: {{.Values.livenessProbe}}
+            port: {{.Values.livenessPort}}
+        {{- end}}
+        env:
+        - name: APP
+          value: {{.Values.serviceName}}
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: PORT
+          value: "{{.Values.ports}}"
+        - name: ENV
+          value: {{.Value.env}}
+        resources:
+          requests:
+            cpu: {{.Values.cpuRequest}}
+            memory: {{.Values.memoryRequest}}
+            ephemeral-storage: {{.Values.ephemeralStorageRequest}}
+          limits:
+            cpu: {{.Values.cpuLimit}}
+            memory: {{.Values.memoryLimit}}
+            ephemeral-storage: {{.Values.ephemeralStorageLimit}}
+        volumeMounts:
+        - name: {{.Release.Name}}-configs
+          mountPath: /tmp/configs
+        imagePullSecrets:
+        - name: {{.Release.Name}}-dockerregistry
+        volumes:
+        {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
+        - name: sharedmemory-{{.Values.dockinsServiceName}}
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{.Values.sharedMemoryLimit}}
+        {{- end}}
+        - name: {{.Release.Name}}-configs
+          configMap:
+            name: {{.Release.Name}}-configs
+            defaultMode: 0777
+            items:
+{{-with .Values.configItems}}
+{{ toYaml . | indent 10}}
+{{- end}}
