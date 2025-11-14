@@ -130,7 +130,7 @@ spec:
         - name: {{.Release.Name}}-dockerregistry
         volumes:
         {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
-        - name: sharedmemory-{{.Values.dockinsServiceName}}
+        - name: sharedmemory-{{.Values.serviceName}}
           emptyDir:
             medium: Memory
             sizeLimit: {{.Values.sharedMemoryLimit}}
