@@ -31,7 +31,7 @@ jobs:
         uses: helm/chart-releaser-action@v1.6.0
         env:
           # Token used for creating releases and pushing to the target branch
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_TOKEN: "${{ secrets.REPO_PAT }}"
         with:
           # 🎯 KEY FIX: This tells the action where to find the individual chart folders (namespace, secret)
           charts_dir: deplorch
