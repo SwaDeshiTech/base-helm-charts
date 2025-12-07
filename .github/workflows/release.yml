@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'deplorch/**' # Trigger only on changes to chart source files
+      - 'base-helm-charts/deplorch/**' # Trigger only on changes to chart source files
 
 jobs:
   release:
