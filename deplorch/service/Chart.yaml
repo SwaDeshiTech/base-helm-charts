@@ -2,4 +2,4 @@ apiVersion: v2
 name: service
 description: A Helm chart to deploy any service to any environment
 type: application
-version: 1.0.1
+version: 1.0.2
