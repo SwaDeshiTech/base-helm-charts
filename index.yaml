@@ -1,0 +1,43 @@
+apiVersion: v1
+entries:
+  configmap:
+  - apiVersion: v2
+    created: "2025-12-07T14:13:03.753443+05:30"
+    description: A Helm chart to deploy any service to any environment
+    digest: 5e801de7a4a9a193a4cea6e4dd77a5363e0caf26a2953f0ccfc61586f757ed36
+    name: configmap
+    type: application
+    urls:
+    - https://swadeshitech.github.io/base-helm-charts/configmap-1.0.2.tgz
+    version: 1.0.2
+  deployment:
+  - apiVersion: v2
+    created: "2025-12-07T14:13:03.75362+05:30"
+    description: A Helm chart to deploy any service to any environment
+    digest: 528bea9aa757f8fabce23b61a81335c7368ed243d3f9dd4c95f70aa9a49d3146
+    name: deployment
+    type: application
+    urls:
+    - https://swadeshitech.github.io/base-helm-charts/deployment-1.0.2.tgz
+    version: 1.0.2
+  namespace:
+  - apiVersion: v2
+    created: "2025-12-07T14:13:03.753769+05:30"
+    description: A Helm chart to deploy any service to any environment
+    digest: 974a27635ad8c6a3baddffe665833e4fd3573127fa0b2166a03d1a08150e36ad
+    name: namespace
+    type: application
+    urls:
+    - https://swadeshitech.github.io/base-helm-charts/namespace-1.0.2.tgz
+    version: 1.0.2
+  secret:
+  - apiVersion: v2
+    created: "2025-12-07T14:13:03.753991+05:30"
+    description: A Helm chart to deploy any service to any environment
+    digest: 1486cb2820a59d9dd467100dfc3b16ebdebe8e5ed75c76f25bb934c739627a42
+    name: secret
+    type: application
+    urls:
+    - https://swadeshitech.github.io/base-helm-charts/secret-1.0.2.tgz
+    version: 1.0.2
+generated: "2025-12-07T14:13:03.752849+05:30"
