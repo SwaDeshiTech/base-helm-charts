@@ -6,7 +6,7 @@ on:
       - main
     # 🚨 IMPORTANT: Trigger only on changes within the directory containing your charts
     paths:
-      - 'base-helm-charts/deplorch/**' 
+      - 'deplorch/**' 
 
 jobs:
   release:
@@ -34,7 +34,7 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
           # 🎯 KEY FIX: This tells the action where to find the individual chart folders (namespace, secret)
-          charts_dir: base-helm-charts/deplorch
+          charts_dir: deplorch
           
           # Use 'main' instead of the default 'gh-pages' for hosting the index.yaml
           target_branch: main
