@@ -3,4 +3,6 @@ kind: ConfigMap
 metadata:
   name: {{.Release.Name}}-configs
   namespace: {{.Values.namespace}}
+  annotations:
+    helm.sh/resource-policy: keep
 data: {{- .Values.configData | toYaml | nindent 2 }}

@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: {{.Release.Name}}
   namespace: {{.Values.namespace}}
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   replicas: 0
   selector:
