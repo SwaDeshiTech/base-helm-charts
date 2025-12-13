@@ -8,8 +8,8 @@ entries:
     name: configmap
     type: application
     urls:
-    - https://swadeshitech.github.io/base-helm-charts/configmap-1.0.2.tgz
-    version: 1.0.2
+    - https://swadeshitech.github.io/base-helm-charts/configmap-1.0.3.tgz
+    version: 1.0.3
   deployment:
   - apiVersion: v2
     created: "2025-12-07T14:13:03.75362+05:30"
@@ -18,8 +18,8 @@ entries:
     name: deployment
     type: application
     urls:
-    - https://swadeshitech.github.io/base-helm-charts/deployment-1.0.2.tgz
-    version: 1.0.2
+    - https://swadeshitech.github.io/base-helm-charts/deployment-1.0.3.tgz
+    version: 1.0.3
   namespace:
   - apiVersion: v2
     created: "2025-12-07T14:13:03.753769+05:30"
@@ -28,8 +28,8 @@ entries:
     name: namespace
     type: application
     urls:
-    - https://swadeshitech.github.io/base-helm-charts/namespace-1.0.2.tgz
-    version: 1.0.2
+    - https://swadeshitech.github.io/base-helm-charts/namespace-1.0.3.tgz
+    version: 1.0.3
   secret:
   - apiVersion: v2
     created: "2025-12-07T14:13:03.753991+05:30"
@@ -38,6 +38,6 @@ entries:
     name: secret
     type: application
     urls:
-    - https://swadeshitech.github.io/base-helm-charts/secret-1.0.2.tgz
-    version: 1.0.2
+    - https://swadeshitech.github.io/base-helm-charts/secret-1.0.3.tgz
+    version: 1.0.3
 generated: "2025-12-07T14:13:03.752849+05:30"
