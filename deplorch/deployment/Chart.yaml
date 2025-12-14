@@ -1,5 +1,5 @@
 apiVersion: v2
 name: deployment
-description: A Helm chart to deploy any service to any environment
+description: A Helm chart to deploy a generic application
 type: application
-version: 1.0.5
+version: 1.0.6
