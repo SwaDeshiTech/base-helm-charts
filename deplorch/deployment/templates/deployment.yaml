@@ -23,13 +23,15 @@ spec:
         config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBursts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
         config.alpha.linkerd.io/proxy-wait-before-exit-seconds: "30"
         config.linkerd.io/proxy-cpu-limit: '{{.Values.linkerdCpuLimit}}'
-        config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'        
-        
+        config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'
       labels:
         release: {{.Release.Name}}
     spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
+      # MOVE imagePullSecrets HERE (Under spec, level with containers)
+      imagePullSecrets:
+      - name: {{.Release.Name}}-dockerregistry
       {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
       tolerations:
       - effect: NoSchedule
@@ -41,7 +43,7 @@ spec:
       {{- end}}
       containers:
       - image: {{.Values.registryURL}}/{{.Values.image}}
-        name: {{.Values.serviceName}}
+        name: {{ .Values.serviceName | default .Release.Name }} # Added a fallback to Release.Name if serviceName is empty
         command: [{{.Values.startUpCommand}}] 
         ports:
         - containerPort: {{.Values.ports}}
@@ -79,7 +81,7 @@ spec:
               value: {{.Values.readinessAccept}}
               {{- end}}
             {{- end}}
-            path: {{.Values.readinessProbe}}
+            path: {{.Values.readinessProbePath}} # Verified parameter name
             port: {{.Values.readinessPort}}
         livenessProbe:
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
@@ -102,7 +104,7 @@ spec:
               value: {{.Values.livenessAccept}}
               {{- end}}
             {{- end}}
-            path: {{.Values.livenessProbe}}
+            path: {{.Values.livenessProbePath}} # Verified parameter name
             port: {{.Values.livenessPort}}
         env:
         - name: APP
@@ -127,8 +129,7 @@ spec:
         volumeMounts:
         - name: {{.Release.Name}}-configs
           mountPath: /tmp/configs
-        imagePullSecrets:
-        - name: {{.Release.Name}}-dockerregistry
+      # imagePullSecrets was here - MOVED ABOVE
       volumes:
         {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
