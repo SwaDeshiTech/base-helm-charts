@@ -17,13 +17,13 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      annotations:
-        config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts}}
-        config.linkerd.io/proxy-memory-limit: '{{.Values.linkerdMemoryLimit}}Mi'
-        config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBursts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
-        config.alpha.linkerd.io/proxy-wait-before-exit-seconds: "30"
-        config.linkerd.io/proxy-cpu-limit: '{{.Values.linkerdCpuLimit}}'
-        config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'
+      #annotations:
+        #config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts}}
+        #config.linkerd.io/proxy-memory-limit: '{{.Values.linkerdMemoryLimit}}Mi'
+        #config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBursts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
+        #config.alpha.linkerd.io/proxy-wait-before-exit-seconds: "30"
+        #config.linkerd.io/proxy-cpu-limit: '{{.Values.linkerdCpuLimit}}'
+        #config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'
       labels:
         release: {{.Release.Name}}
     spec:
