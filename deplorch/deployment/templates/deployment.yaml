@@ -24,7 +24,6 @@ spec:
         config.alpha.linkerd.io/proxy-wait-before-exit-seconds: "30"
         config.linkerd.io/proxy-cpu-limit: '{{.Values.linkerdCpuLimit}}'
         config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'        
-        checksum/config: {{ lookup "v1" "ConfigMap" .Values.namespace .Values.externalConfigMapName | toYaml | sha256sum }}
         
       labels:
         release: {{.Release.Name}}
