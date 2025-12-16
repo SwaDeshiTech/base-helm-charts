@@ -17,7 +17,7 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      annotations:
+      #annotations:
         #config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts | quote}}
         #config.linkerd.io/proxy-memory-limit: '{{.Values.linkerdMemoryLimit}}Mi'
         #config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBursts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
