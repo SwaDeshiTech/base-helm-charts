@@ -6,7 +6,7 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
 spec:
-  replicas: 0
+  replicas: {{ .Values.replicas | default 0 }}
   selector:
     matchLabels:
       release: {{.Release.Name}}
@@ -17,19 +17,20 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      #annotations:
-        #config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts}}
+      annotations:
+        #config.linkerd.io/skip-outbound-ports: {{.Values.skippedOutboundPorts | quote}}
         #config.linkerd.io/proxy-memory-limit: '{{.Values.linkerdMemoryLimit}}Mi'
         #config.linkerd.io/proxy-memory-request: '{{ add (mul .Values.linkerdMemoryRequestBursts .Values.linkerdMemoryMultiplier) .Values.linkerdMemoryRequest }}Mi'
         #config.alpha.linkerd.io/proxy-wait-before-exit-seconds: "30"
         #config.linkerd.io/proxy-cpu-limit: '{{.Values.linkerdCpuLimit}}'
         #config.linkerd.io/proxy-cpu-request: '{{ add (mul .Values.linkerdCpuRequestBurst .Values.linkerdCpuRequestMultiplier) .Values.linkerdCpuRequest }}m'
+        # Checksum for external configmap lookup
+        #checksum/config: {{ lookup "v1" "ConfigMap" .Values.namespace .Values.externalConfigMapName | toYaml | sha256sum }}
       labels:
         release: {{.Release.Name}}
     spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
-      # MOVE imagePullSecrets HERE (Under spec, level with containers)
       imagePullSecrets:
       - name: {{.Release.Name}}-dockerregistry
       {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
@@ -43,7 +44,7 @@ spec:
       {{- end}}
       containers:
       - image: {{.Values.registryURL}}/{{.Values.image}}
-        name: {{ .Values.serviceName | default .Release.Name }} # Added a fallback to Release.Name if serviceName is empty
+        name: {{ .Values.serviceName | default .Release.Name }}
         command: [{{.Values.startUpCommand}}] 
         ports:
         - containerPort: {{.Values.ports}}
@@ -55,10 +56,10 @@ spec:
           initialDelaySeconds: 10
           timeoutSeconds: 5
           periodSeconds: 5
-          failureThreshold: {{ mul .Values.serviceStartupTime 12}}
+          failureThreshold: {{ mul .Values.serviceStartupTime 12 }}
           httpGet:
-            path: {{.Values.StartupProbePath}}
-            port: {{.Values.StartupProbePort}}
+            path: {{.Values.startupProbePath}}
+            port: {{.Values.startupProbePort}}
         {{- end}}
         readinessProbe:
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
@@ -81,7 +82,7 @@ spec:
               value: {{.Values.readinessAccept}}
               {{- end}}
             {{- end}}
-            path: {{.Values.readinessProbePath}} # Verified parameter name
+            path: {{.Values.readinessProbePath}}
             port: {{.Values.readinessPort}}
         livenessProbe:
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
@@ -104,7 +105,7 @@ spec:
               value: {{.Values.livenessAccept}}
               {{- end}}
             {{- end}}
-            path: {{.Values.livenessProbePath}} # Verified parameter name
+            path: {{.Values.livenessProbePath}}
             port: {{.Values.livenessPort}}
         env:
         - name: APP
@@ -129,7 +130,6 @@ spec:
         volumeMounts:
         - name: {{.Release.Name}}-configs
           mountPath: /tmp/configs
-      # imagePullSecrets was here - MOVED ABOVE
       volumes:
         {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
