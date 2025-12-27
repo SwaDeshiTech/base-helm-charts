@@ -2,4 +2,4 @@ apiVersion: v2
 name: ingress
 description: A Helm chart to create a Kubernetes ingress resource
 type: application
-version: 1.0.0
+version: 1.0.1

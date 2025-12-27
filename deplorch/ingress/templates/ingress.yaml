@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.hosts }}
     - host: {{ .host }}
       http:
         paths:
