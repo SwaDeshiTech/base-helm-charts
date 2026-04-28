@@ -19,11 +19,11 @@ spec:
     - name: http
       port: 8080
       targetPort: {{.Values.ports}}
-      nodePort: {{.Values.ports}}
+      nodePort: {{.Values.nodePort}}
     {{- else}}
     - name: http
       port: 80
       targetPort: {{.Values.ports}}
-      nodePort: {{.Values.ports}}
+      nodePort: {{.Values.nodePort}}
     {{- end}}
 
