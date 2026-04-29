@@ -7,9 +7,13 @@ metadata:
   {{- if .Values.ingressClassName }}
   ingressClassName: {{ .Values.ingressClassName }}
   {{- end }}
-  {{- if .Values.ingressAnnotations }}
+  {{- $annotations := .Values.ingressAnnotations }}
+  {{- if and $annotations (kindIs "string" $annotations) }}
+    {{- $annotations = fromJson $annotations }}
+  {{- end }}
+  {{- if $annotations }}
   annotations:
-    {{- toYaml .Values.ingressAnnotations | nindent 4 }}
+    {{- toYaml $annotations | nindent 4 }}
   {{- end }}
 spec:
   rules:
