@@ -17,7 +17,7 @@ metadata:
   {{- end }}
 {{- $ingressRules := .Values.ingressYaml }}
 {{- if and $ingressRules (kindIs "string" $ingressRules) }}
-  {{- $ingressRules = fromYaml $ingressRules }}
+  {{- $ingressRules = fromYamlArray $ingressRules }}
 {{- end }}
 {{- if and $ingressRules (kindIs "slice" $ingressRules) }}
   {{- range $idx, $rule := $ingressRules }}
@@ -25,8 +25,8 @@ metadata:
       {{- range $path := $rule.http.paths }}
         {{- $svcName := default $.Release.Name $path.serviceName }}
         {{- $svcPort := default 80 $path.port }}
-        {{- $path.pathType = default "Prefix" $path.pathType }}
-        {{- $path.backend = dict "service" (dict "name" $svcName "port" (dict "number" $svcPort)) }}
+        {{- $_ := set $path "pathType" (default "Prefix" $path.pathType) }}
+        {{- $_ := set $path "backend" (dict "service" (dict "name" $svcName "port" (dict "number" $svcPort))) }}
         {{- $_ := unset $path "serviceName" }}
         {{- $_ := unset $path "port" }}
       {{- end }}
