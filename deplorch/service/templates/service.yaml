@@ -5,7 +5,7 @@ metadata:
   labels:
     release: {{.Release.Name}}
     type: k8s
-  name: {{.Release.Name}}-k8s
+  name: {{.Release.Name}}
   namespace: {{.Values.namespace}}
 spec:
   selector:
