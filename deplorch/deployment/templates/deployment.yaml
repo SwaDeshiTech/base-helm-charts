@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Release.Name}}
+  name: {{ default .Release.Name .Values.baseReleaseName }}
   namespace: {{.Values.namespace}}
   annotations:
     helm.sh/resource-policy: keep
@@ -9,7 +9,7 @@ spec:
   replicas: {{ .Values.replicas | default 0 }}
   selector:
     matchLabels:
-      release: {{.Release.Name}}
+      release: {{ default .Release.Name .Values.baseReleaseName }}
   strategy:
     rollingUpdate:
       maxUnavailable: 0
@@ -18,12 +18,12 @@ spec:
   template:
     metadata:
       labels:
-        release: {{.Release.Name}}
+        release: {{ default .Release.Name .Values.baseReleaseName }}
     spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-      - name: {{.Release.Name}}-dockerregistry
+      - name: {{ default .Release.Name .Values.baseReleaseName }}-dockerregistry
       {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
       tolerations:
       - effect: NoSchedule
@@ -35,7 +35,7 @@ spec:
       {{- end}}
       containers:
       - image: {{.Values.registryURL}}/{{.Values.image}}
-        name: {{ .Values.serviceName | default .Release.Name }}
+        name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
         command: [{{.Values.startUpCommand}}] 
         ports:
         - containerPort: {{.Values.ports}}
@@ -119,7 +119,7 @@ spec:
             memory: {{.Values.memoryLimit}}
             ephemeral-storage: {{.Values.ephemeralStorageLimit}}
         volumeMounts:
-        - name: {{.Release.Name}}-configs
+        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
           mountPath: /tmp/configs
       volumes:
         {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
@@ -128,9 +128,9 @@ spec:
             medium: Memory
             sizeLimit: {{.Values.sharedMemoryLimit}}
         {{- end}}
-        - name: {{.Release.Name}}-configs
+        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
           configMap:
-            name: {{.Release.Name}}-configs
+            name: {{ default .Release.Name .Values.baseReleaseName }}-configs
             defaultMode: 0777
             items:
 {{- with .Values.configItems}}

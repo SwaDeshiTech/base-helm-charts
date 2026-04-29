@@ -23,7 +23,7 @@ metadata:
   {{- range $idx, $rule := $ingressRules }}
     {{- if and $rule.http $rule.http.paths (not (hasKey ($rule.http.paths | first) "backend")) }}
       {{- range $path := $rule.http.paths }}
-        {{- $svcName := default $.Release.Name $path.serviceName }}
+        {{- $svcName := default (default $.Release.Name $.Values.baseReleaseName) $path.serviceName }}
         {{- $svcPort := default 80 $path.port }}
         {{- $_ := set $path "pathType" (default "Prefix" $path.pathType) }}
         {{- $_ := set $path "backend" (dict "service" (dict "name" $svcName "port" (dict "number" $svcPort))) }}

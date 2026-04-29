@@ -2,4 +2,4 @@ apiVersion: v2
 name: configmap
 description: A Helm chart for Kubernetes ConfigMap management
 type: application
-version: 1.0.4
+version: 1.0.5

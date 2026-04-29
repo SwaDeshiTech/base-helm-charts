@@ -3,17 +3,17 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    release: {{.Release.Name}}
+    release: {{ default .Release.Name .Values.baseReleaseName }}
     type: k8s
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: {{.Release.Name}}
     meta.helm.sh/release-namespace: {{.Release.Namespace}}
-  name: {{.Release.Name}}
-  namespace: {{.Values.namespace}}
+  name: {{ default .Release.Name .Values.baseReleaseName }}
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
-    release: {{.Release.Name}}
+    release: {{ default .Release.Name .Values.baseReleaseName }}
   type: ClusterIP
   ports:
     {{- if eq .Values.isGRPCPortEnabled "enabled" }}
