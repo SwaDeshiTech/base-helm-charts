@@ -15,7 +15,25 @@ metadata:
   annotations:
     {{- toYaml $annotations | nindent 4 }}
   {{- end }}
+{{- $ingressRules := .Values.ingressYaml }}
+{{- if and $ingressRules (kindIs "string" $ingressRules) }}
+  {{- $ingressRules = fromYaml $ingressRules }}
+{{- end }}
+{{- if and $ingressRules (kindIs "slice" $ingressRules) }}
+  {{- range $idx, $rule := $ingressRules }}
+    {{- if and $rule.http $rule.http.paths (not (hasKey ($rule.http.paths | first) "backend")) }}
+      {{- range $path := $rule.http.paths }}
+        {{- $svcName := default $.Release.Name $path.serviceName }}
+        {{- $svcPort := default 80 $path.port }}
+        {{- $path.pathType = default "Prefix" $path.pathType }}
+        {{- $path.backend = dict "service" (dict "name" $svcName "port" (dict "number" $svcPort)) }}
+        {{- $_ := unset $path "serviceName" }}
+        {{- $_ := unset $path "port" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 spec:
   rules:
-    {{- .Values.ingressYaml | nindent 4 }}
+    {{- toYaml $ingressRules | nindent 4 }}
 {{- end }}
