@@ -60,7 +60,7 @@ spec:
             port: {{.Values.startupProbePort}}
         {{- end}}
         readinessProbe:
-          initialDelaySeconds: {{ .Values.readinessInitialDelay | default 30 }}
+          initialDelaySeconds: {{ .Values.readinessInitialDelay | default 45 }}
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
           timeoutSeconds: 5
           periodSeconds: 5
@@ -84,7 +84,7 @@ spec:
             path: {{.Values.readinessProbePath}}
             port: {{.Values.readinessPort}}
         livenessProbe:
-          initialDelaySeconds: {{ .Values.livenessInitialDelay | default 60 }}
+          initialDelaySeconds: {{ .Values.livenessInitialDelay | default 90 }}
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
           timeoutSeconds: 5
           periodSeconds: 5
@@ -115,6 +115,8 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: PORT
+          value: "{{.Values.ports}}"
+        - name: SERVER_PORT
           value: "{{.Values.ports}}"
         - name: ENV
           value: {{.Values.env}}
