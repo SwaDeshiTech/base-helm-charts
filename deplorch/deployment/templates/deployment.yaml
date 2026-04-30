@@ -20,6 +20,9 @@ spec:
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName }}
     spec:
+      {{- if eq .Values.namespace "prodhub" }}
+      serviceAccountName: vault-client-ksa
+      {{- end }}
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
       imagePullSecrets:
