@@ -20,8 +20,12 @@ spec:
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName }}
     spec:
-      {{- if eq .Values.namespace "prodhub" }}
-      serviceAccountName: vault-client-ksa
+      {{- $serviceAccount := .Values.serviceAccountName }}
+      {{- if and (not $serviceAccount) (eq .Values.namespace "prodhub") }}
+        {{- $serviceAccount = "vault-client-ksa" }}
+      {{- end }}
+      {{- if $serviceAccount }}
+      serviceAccountName: {{ $serviceAccount }}
       {{- end }}
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
@@ -56,6 +60,7 @@ spec:
             port: {{.Values.startupProbePort}}
         {{- end}}
         readinessProbe:
+          initialDelaySeconds: {{ .Values.readinessInitialDelay | default 30 }}
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
           timeoutSeconds: 5
           periodSeconds: 5
@@ -79,6 +84,7 @@ spec:
             path: {{.Values.readinessProbePath}}
             port: {{.Values.readinessPort}}
         livenessProbe:
+          initialDelaySeconds: {{ .Values.livenessInitialDelay | default 60 }}
           successThreshold: {{ add (div .Values.serviceWarmupTime 5) 1 }}
           timeoutSeconds: 5
           periodSeconds: 5
