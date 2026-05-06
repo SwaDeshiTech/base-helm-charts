@@ -21,7 +21,7 @@ spec:
         release: {{ default .Release.Name .Values.baseReleaseName }}
     spec:
       {{- $serviceAccount := .Values.serviceAccountName }}
-      {{- if and (not $serviceAccount) (eq .Values.namespace "prodhub") }}
+      {{- if and (not $serviceAccount) (or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer")) }}
         {{- $serviceAccount = "vault-client-ksa" }}
       {{- end }}
       {{- if $serviceAccount }}
