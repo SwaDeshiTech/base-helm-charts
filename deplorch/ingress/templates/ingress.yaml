@@ -17,6 +17,7 @@ metadata:
   {{- end }}
 {{- $ingressRules := .Values.ingressYaml }}
 {{- if and $ingressRules (kindIs "string" $ingressRules) }}
+  {{- $ingressRules = $ingressRules | replace "\\n" "\n" }}
   {{- $ingressRules = fromYamlArray $ingressRules }}
 {{- end }}
 {{- if and $ingressRules (kindIs "slice" $ingressRules) }}
