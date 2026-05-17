@@ -6,6 +6,7 @@ helm package deplorch/service -d .
 helm package deplorch/service-external -d .
 helm package deplorch/ingress -d .
 helm package deplorch/ephemeral-service -d .
+helm package deplorch/environment-orchestrator -d .
 
 export REPO_URL="https://swadeshitech.github.io/base-helm-charts"
 helm repo index . --url $REPO_URL

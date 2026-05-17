@@ -1,0 +1,50 @@
+namespace: ""
+baseReleaseName: ""
+
+replicaCount: 1
+pullPolicy: IfNotPresent
+
+coredns:
+  image:
+    repository: harry2654/prodhub
+    tag: coredns-latest
+  service:
+    type: ClusterIP
+    port: 53
+    protocol: UDP
+
+haproxy:
+  image:
+    repository: harry2654/prodhub
+    tag: haproxy-latest
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+listener:
+  image:
+    repository: harry2654/prodhub
+    tag: listener-latest
+
+config:
+  serviceDomain: "pod.local"
+  resyncInterval: "30s"
+  syncTimeout: "5s"
+
+serviceAccount:
+  create: true
+  name: ""
+
+resources: {}
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

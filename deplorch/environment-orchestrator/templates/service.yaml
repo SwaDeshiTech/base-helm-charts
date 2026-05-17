@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}-dns
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+spec:
+  type: {{ .Values.coredns.service.type }}
+  ports:
+    - port: {{ .Values.coredns.service.port }}
+      targetPort: 53
+      protocol: {{ .Values.coredns.service.protocol }}
+      name: dns
+  selector:
+    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}-proxy
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+spec:
+  type: {{ .Values.haproxy.service.type }}
+  ports:
+    - port: {{ .Values.haproxy.service.port }}
+      targetPort: 80
+      protocol: TCP
+      name: proxy
+  selector:
+    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}

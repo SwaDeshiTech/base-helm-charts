@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  template:
+    metadata:
+      labels:
+        release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    spec:
+      serviceAccountName: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+      containers:
+        - name: coredns
+          image: "{{ .Values.coredns.image.repository }}:{{ .Values.coredns.image.tag }}"
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERVICE_DOMAIN
+              value: {{ .Values.config.serviceDomain | quote }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+
+        - name: haproxy
+          image: "{{ .Values.haproxy.image.repository }}:{{ .Values.haproxy.image.tag }}"
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            - name: proxy
+              containerPort: 80
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: HAPROXY_RELOAD_COMMAND
+              value: "haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid 2>/dev/null) &"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+
+        - name: listener
+          image: "{{ .Values.listener.image.repository }}:{{ .Values.listener.image.tag }}"
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_DOMAIN
+              value: {{ .Values.config.serviceDomain | quote }}
+            - name: RESYNC_INTERVAL
+              value: {{ .Values.config.resyncInterval | quote }}
+            - name: SYNC_TIMEOUT
+              value: {{ .Values.config.syncTimeout | quote }}
+            - name: HAPROXY_SYNC_URL
+              value: "http://localhost:8080/endpoints"
+            - name: COREDNS_SYNC_URL
+              value: "http://localhost:8080/endpoints"
