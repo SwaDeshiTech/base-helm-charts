@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}
+  namespace: {{.Values.namespace}}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      release: {{ default .Release.Name .Values.baseReleaseName }}
+  template:
+    metadata:
+      labels:
+        release: {{ default .Release.Name .Values.baseReleaseName }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: {{ default .Release.Name .Values.baseReleaseName }}-dockerregistry
+      {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
+      tolerations:
+      - effect: NoSchedule
+        key: app
+        operator: Equal
+        value: {{.Values.nodeSelectorApp}}
+      nodeSelector:
+        app: {{.Values.nodeSelectorApp}}
+      {{- end}}
+      containers:
+      - image: {{.Values.registryURL}}/{{.Values.image}}
+        name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
+        {{- if .Values.startUpCommand }}
+        command: [{{.Values.startUpCommand}}]
+        {{- end }}
+        ports:
+        - containerPort: {{.Values.ports}}
+        {{- if eq .Values.isGRPCPortEnabled "enabled"}}
+        - containerPort: {{.Values.grpcPort}}
+        {{- end}}
+        # Probes removed for ephemeral environment as requested
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
