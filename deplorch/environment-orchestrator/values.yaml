@@ -6,8 +6,8 @@ pullPolicy: IfNotPresent
 
 coredns:
   image:
-    repository: harry2654/prodhub
-    tag: coredns-latest
+    repository: dockerhub.prodhub.in/environmentorchestrator-corednsproduction-6646354
+    tag: 2a75003
   service:
     type: ClusterIP
     port: 53
@@ -15,8 +15,8 @@ coredns:
 
 haproxy:
   image:
-    repository: harry2654/prodhub
-    tag: haproxy-latest
+    repository: dockerhub.prodhub.in/environmentorchestrator-haproxyproduction-1337173
+    tag: 2a75003
   service:
     type: ClusterIP
     port: 80
@@ -24,8 +24,8 @@ haproxy:
 
 listener:
   image:
-    repository: harry2654/prodhub
-    tag: listener-latest
+    repository: dockerhub.prodhub.in/environmentorchestrator-listenerproduction-6515072
+    tag: 2a75003
 
 config:
   serviceDomain: "pod.local"
