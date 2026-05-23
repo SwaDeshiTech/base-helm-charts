@@ -15,6 +15,10 @@ spec:
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
       containers:
         - name: coredns
