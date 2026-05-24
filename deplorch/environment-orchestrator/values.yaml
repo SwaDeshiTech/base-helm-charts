@@ -10,7 +10,7 @@ imagePullSecrets:
 coredns:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-corednsproduction-6646354-2a75003
+    tag: environmentorchestrator-corednsproduction-6646354-04303aa
   service:
     type: ClusterIP
     port: 53
@@ -19,7 +19,7 @@ coredns:
 haproxy:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-haproxyproduction-1337173-2a75003
+    tag: environmentorchestrator-haproxyproduction-1337173-04303aa
   service:
     type: ClusterIP
     port: 80
@@ -28,7 +28,7 @@ haproxy:
 listener:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-listenerproduction-6515072-2a75003
+    tag: environmentorchestrator-listenerproduction-6515072-04303aa
 
 config:
   serviceDomain: "pod.local"
