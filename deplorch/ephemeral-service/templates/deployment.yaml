@@ -6,7 +6,7 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
 spec:
-  replicas: {{ .Values.replicas | default 1 }}
+  replicas: {{ .Values.replicas | default 0 }}
   selector:
     matchLabels:
       release: {{ default .Release.Name .Values.baseReleaseName }}
@@ -31,14 +31,49 @@ spec:
       containers:
       - image: {{.Values.registryURL}}/{{.Values.image}}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
-        {{- if .Values.startUpCommand }}
-        command: [{{.Values.startUpCommand}}]
-        {{- end }}
+        command: [{{.Values.startUpCommand}}] 
         ports:
         - containerPort: {{.Values.ports}}
         {{- if eq .Values.isGRPCPortEnabled "enabled"}}
         - containerPort: {{.Values.grpcPort}}
         {{- end}}
-        # Probes removed for ephemeral environment as requested
+        env:
+        - name: APP
+          value: {{.Values.serviceName}}
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: PORT
+          value: "{{.Values.ports}}"
+        - name: SERVER_PORT
+          value: "{{.Values.ports}}"
+        - name: ENV
+          value: {{.Values.env}}
         resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+          requests:
+            cpu: {{.Values.cpuRequest}}
+            memory: {{.Values.memoryRequest}}
+            ephemeral-storage: {{.Values.ephemeralStorageRequest}}
+          limits:
+            cpu: {{.Values.cpuLimit}}
+            memory: {{.Values.memoryLimit}}
+            ephemeral-storage: {{.Values.ephemeralStorageLimit}}
+        volumeMounts:
+        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
+          mountPath: /tmp/configs
+      volumes:
+        {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
+        - name: sharedmemory-{{.Values.serviceName}}
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{.Values.sharedMemoryLimit}}
+        {{- end}}
+        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
+          configMap:
+            name: {{ default .Release.Name .Values.baseReleaseName }}-configs
+            defaultMode: 0777
+            items:
+{{- with .Values.configItems}}
+{{ toYaml . | indent 14}}
+{{- end}}
