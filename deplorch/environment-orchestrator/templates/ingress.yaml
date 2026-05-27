@@ -1,21 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-    - host: "*.{{ .Values.namespace }}.init.prodhub.in"
+    - host: "*.{{ default .Values.namespace .Values.ephemeralEnvironmentName }}.init.prodhub.in"
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}-proxy
+                name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}-proxy
                 port:
                   number: 80

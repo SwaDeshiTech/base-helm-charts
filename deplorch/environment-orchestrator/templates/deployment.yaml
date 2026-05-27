@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+      release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   template:
     metadata:
       labels:
-        release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+        release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+      serviceAccountName: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
       containers:
         - name: coredns
           image: "{{ .Values.coredns.image.repository }}:{{ .Values.coredns.image.tag }}"

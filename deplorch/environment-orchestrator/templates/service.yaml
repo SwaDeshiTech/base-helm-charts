@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}-dns
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}-dns
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 spec:
   type: {{ .Values.coredns.service.type }}
   ports:
@@ -13,15 +13,15 @@ spec:
       protocol: {{ .Values.coredns.service.protocol }}
       name: dns
   selector:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}-proxy
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}-proxy
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 spec:
   type: {{ .Values.haproxy.service.type }}
   ports:
@@ -30,4 +30,4 @@ spec:
       protocol: TCP
       name: proxy
   selector:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}

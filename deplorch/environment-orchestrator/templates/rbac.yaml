@@ -2,19 +2,19 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 spec:
   rules:
     - apiGroups: [""]
@@ -24,15 +24,15 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
   namespace: {{ .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+  name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 subjects:
   - kind: ServiceAccount
-    name: {{ default .Release.Name .Values.baseReleaseName }}-{{ .Values.namespace }}
+    name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
     namespace: {{ .Values.namespace }}
