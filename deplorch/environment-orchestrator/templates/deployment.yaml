@@ -15,10 +15,8 @@ spec:
       labels:
         release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
     spec:
-      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      {{- end }}
+        - name: prodhub
       serviceAccountName: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
       containers:
         - name: coredns
