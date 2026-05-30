@@ -5,7 +5,7 @@ replicaCount: 1
 pullPolicy: IfNotPresent
 
 imagePullSecrets:
-  - name: prodhub
+  - name: dockerhub
 
 coredns:
   image:

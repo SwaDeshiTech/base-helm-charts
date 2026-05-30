@@ -16,7 +16,7 @@ spec:
         release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
     spec:
       imagePullSecrets:
-        - name: prodhub
+        - name: dockerhub
       serviceAccountName: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
       containers:
         - name: coredns
