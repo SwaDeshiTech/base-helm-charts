@@ -59,21 +59,10 @@ spec:
             cpu: {{.Values.cpuLimit}}
             memory: {{.Values.memoryLimit}}
             ephemeral-storage: {{.Values.ephemeralStorageLimit}}
-        volumeMounts:
-        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
-          mountPath: /tmp/configs
+      {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
       volumes:
-        {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
           emptyDir:
             medium: Memory
             sizeLimit: {{.Values.sharedMemoryLimit}}
-        {{- end}}
-        - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
-          configMap:
-            name: {{ default .Release.Name .Values.baseReleaseName }}-configs
-            defaultMode: 0777
-            items:
-{{- with .Values.configItems}}
-{{ toYaml . | indent 14}}
-{{- end}}
+      {{- end}}
