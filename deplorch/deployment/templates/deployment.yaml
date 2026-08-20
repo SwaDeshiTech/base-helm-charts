@@ -19,13 +19,15 @@ spec:
     metadata:
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName }}
-    spec:
-      {{- $serviceAccount := .Values.serviceAccountName }}
-      {{- if and (not $serviceAccount) (or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer")) }}
-        {{- $serviceAccount = "vault-client-ksa" }}
+      {{- if or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer") (eq .Values.namespace "gateway") }}
+      annotations:
+        vault.hashicorp.com/role: prodhub-role
       {{- end }}
-      {{- if $serviceAccount }}
-      serviceAccountName: {{ $serviceAccount }}
+    spec:
+      {{- if or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer") (eq .Values.namespace "gateway") }}
+      serviceAccountName: prodhub-sa
+      {{- else if .Values.serviceAccountName }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
