@@ -29,7 +29,7 @@ spec:
         app: {{.Values.nodeSelectorApp}}
       {{- end}}
       containers:
-      - image: {{.Values.registryURL}}/{{.Values.image}}
+      - image: {{.Values.registryURL}}/{{.Values.imageTag}}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
         command: [{{.Values.startUpCommand}}] 
         ports:
