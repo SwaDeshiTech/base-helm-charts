@@ -10,7 +10,7 @@ imagePullSecrets:
 coredns:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-corednsproduction-6646354-04303aa
+    tag: environmentorchestrator-corednsproduction-5957129-1da66fa
   service:
     type: ClusterIP
     port: 53
