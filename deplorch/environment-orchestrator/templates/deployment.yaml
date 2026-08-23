@@ -49,7 +49,7 @@ spec:
               containerPort: 80
               protocol: TCP
             - name: http
-              containerPort: 8080
+              containerPort: 8081
               protocol: TCP
           env:
             - name: HAPROXY_RELOAD_COMMAND
@@ -57,11 +57,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8080
+              port: 8081
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 8080
+              port: 8081
 
         - name: listener
           image: "{{ .Values.listener.image.repository }}:{{ .Values.listener.image.tag }}"
@@ -78,6 +78,6 @@ spec:
             - name: SYNC_TIMEOUT
               value: {{ .Values.config.syncTimeout | quote }}
             - name: HAPROXY_SYNC_URL
-              value: "http://localhost:8080/endpoints"
+              value: "http://localhost:8081/endpoints"
             - name: COREDNS_SYNC_URL
               value: "http://localhost:8080/endpoints"
