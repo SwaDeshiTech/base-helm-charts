@@ -8,10 +8,14 @@ metadata:
 spec:
   type: {{ .Values.coredns.service.type }}
   ports:
-    - port: {{ .Values.coredns.service.port }}
+    - name: dns-udp
+      port: {{ .Values.coredns.service.port }}
       targetPort: 53
-      protocol: {{ .Values.coredns.service.protocol }}
-      name: dns
+      protocol: UDP
+    - name: dns-tcp
+      port: {{ .Values.coredns.service.port }}
+      targetPort: 53
+      protocol: TCP
   selector:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 ---

@@ -14,7 +14,6 @@ coredns:
   service:
     type: ClusterIP
     port: 53
-    protocol: UDP
 
 haproxy:
   image:
