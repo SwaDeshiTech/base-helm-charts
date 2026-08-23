@@ -56,7 +56,12 @@ spec:
               protocol: TCP
           env:
             - name: HAPROXY_RELOAD_COMMAND
-              value: "haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid 2>/dev/null) &"
+              value: >-
+                if [ -s /tmp/haproxy.pid ]; then
+                  haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid) &
+                else
+                  haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid &
+                fi
           livenessProbe:
             httpGet:
               path: /healthz

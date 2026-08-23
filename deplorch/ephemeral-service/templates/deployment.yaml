@@ -3,6 +3,13 @@ kind: Deployment
 metadata:
   name: {{ default .Release.Name .Values.baseReleaseName }}
   namespace: {{.Values.namespace}}
+  labels:
+    release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+    app.kubernetes.io/name: {{ default .Values.serviceName .Values.applicationName | quote }}
+    app.kubernetes.io/instance: {{ default .Release.Name .Values.baseReleaseName | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
+    prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -13,7 +20,12 @@ spec:
   template:
     metadata:
       labels:
-        release: {{ default .Release.Name .Values.baseReleaseName }}
+        release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+        app.kubernetes.io/name: {{ default .Values.serviceName .Values.applicationName | quote }}
+        app.kubernetes.io/instance: {{ default .Release.Name .Values.baseReleaseName | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
+        prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
     spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
