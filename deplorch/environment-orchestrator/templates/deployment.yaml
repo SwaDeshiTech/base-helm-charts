@@ -57,11 +57,17 @@ spec:
           env:
             - name: HAPROXY_RELOAD_COMMAND
               value: >-
-                haproxy -c -f /tmp/haproxy.cfg &&
-                if [ -s /tmp/haproxy.pid ]; then
-                  haproxy -D -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid)
+                set -eu;
+                CONFIG="${HAPROXY_CONFIG_PATH:-/tmp/haproxy.cfg}";
+                PIDFILE="/tmp/haproxy.pid";
+                haproxy -c -f "$CONFIG";
+                OLD_PIDS="";
+                if [ -s "$PIDFILE" ]; then OLD_PIDS="$(cat "$PIDFILE")"; fi;
+                if [ -n "$OLD_PIDS" ]; then
+                  haproxy -D -f "$CONFIG" -p "$PIDFILE" -sf $OLD_PIDS;
                 else
-                  haproxy -D -f /tmp/haproxy.cfg -p /tmp/haproxy.pid
+                  rm -f "$PIDFILE";
+                  haproxy -D -f "$CONFIG" -p "$PIDFILE";
                 fi
           livenessProbe:
             httpGet:
