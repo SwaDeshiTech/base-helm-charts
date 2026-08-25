@@ -10,6 +10,9 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
     prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+    {{- if .Values.deploymentProfileName }}
+    prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
+    {{- end }}
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -26,6 +29,9 @@ spec:
         app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+        {{- if .Values.deploymentProfileName }}
+        prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
+        {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
       dnsPolicy: ClusterFirst
