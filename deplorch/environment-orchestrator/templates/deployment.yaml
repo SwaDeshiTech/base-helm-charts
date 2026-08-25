@@ -57,10 +57,11 @@ spec:
           env:
             - name: HAPROXY_RELOAD_COMMAND
               value: >-
+                haproxy -c -f /tmp/haproxy.cfg &&
                 if [ -s /tmp/haproxy.pid ]; then
-                  haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid) &
+                  haproxy -D -f /tmp/haproxy.cfg -p /tmp/haproxy.pid -sf $(cat /tmp/haproxy.pid)
                 else
-                  haproxy -f /tmp/haproxy.cfg -p /tmp/haproxy.pid &
+                  haproxy -D -f /tmp/haproxy.cfg -p /tmp/haproxy.pid
                 fi
           livenessProbe:
             httpGet:
