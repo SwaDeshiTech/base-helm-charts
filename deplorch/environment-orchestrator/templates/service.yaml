@@ -7,6 +7,9 @@ metadata:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 spec:
   type: {{ .Values.coredns.service.type }}
+  {{- if .Values.coredns.service.clusterIP }}
+  clusterIP: {{ .Values.coredns.service.clusterIP | quote }}
+  {{- end }}
   ports:
     - name: dns-udp
       port: {{ .Values.coredns.service.port }}

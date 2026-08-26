@@ -35,6 +35,8 @@ spec:
           env:
             - name: SERVICE_DOMAIN
               value: {{ .Values.config.serviceDomain | quote }}
+            - name: UPSTREAM_DNS_ADDR
+              value: {{ .Values.config.upstreamDnsAddr | quote }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -92,6 +94,8 @@ spec:
               value: {{ .Values.config.resyncInterval | quote }}
             - name: SYNC_TIMEOUT
               value: {{ .Values.config.syncTimeout | quote }}
+            - name: DNS_CONFIGMAP_NAME
+              value: {{ .Values.config.dnsConfigMapName | quote }}
             - name: HAPROXY_SYNC_URL
               value: "http://localhost:8081/endpoints"
             - name: COREDNS_SYNC_URL

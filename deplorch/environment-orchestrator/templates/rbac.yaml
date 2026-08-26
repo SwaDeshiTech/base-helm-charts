@@ -17,8 +17,11 @@ metadata:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 rules:
   - apiGroups: [""]
-    resources: ["pods"]
+    resources: ["pods", "services"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

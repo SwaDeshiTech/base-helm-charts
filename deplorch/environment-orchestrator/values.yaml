@@ -13,6 +13,7 @@ coredns:
     tag: environmentorchestrator-corednsproduction-5957129-1da66fa
   service:
     type: ClusterIP
+    clusterIP: ""
     port: 53
 
 haproxy:
@@ -31,6 +32,8 @@ listener:
 
 config:
   serviceDomain: "pod.local"
+  upstreamDnsAddr: "8.8.8.8:53"
+  dnsConfigMapName: "environment-orchestrator-dns"
   resyncInterval: "30s"
   syncTimeout: "5s"
 

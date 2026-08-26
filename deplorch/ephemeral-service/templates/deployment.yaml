@@ -34,7 +34,22 @@ spec:
         {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
+      {{- if .Values.environmentOrchestratorDns.enabled }}
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - {{ required "environmentOrchestratorDns.nameserver is required when environmentOrchestratorDns.enabled=true" .Values.environmentOrchestratorDns.nameserver | quote }}
+        {{- with .Values.environmentOrchestratorDns.searches }}
+        searches:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        {{- with .Values.environmentOrchestratorDns.options }}
+        options:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+      {{- else }}
       dnsPolicy: ClusterFirst
+      {{- end }}
       imagePullSecrets:
       - name: {{ default .Release.Name .Values.baseReleaseName }}-dockerregistry
       {{- if eq .Values.isNodeSelectorEnabled "enabled" }}

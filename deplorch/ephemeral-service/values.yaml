@@ -1,0 +1,9 @@
+environmentOrchestratorDns:
+  enabled: false
+  nameserver: ""
+  searches:
+    - svc.cluster.local
+    - cluster.local
+  options:
+    - name: ndots
+      value: "2"
