@@ -13,7 +13,7 @@ spec:
   strategy:
     rollingUpdate:
       maxUnavailable: 0
-      maxSurge: {{.Values.maxSurgePercentage}}%
+      maxSurge: "{{.Values.maxSurgePercentage}}%"
     type: RollingUpdate
   template:
     metadata:
@@ -22,6 +22,12 @@ spec:
       {{- if or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer") (eq .Values.namespace "gateway") }}
       annotations:
         vault.hashicorp.com/role: prodhub-role
+        {{- if .Values.aiCodeGenerationEnabled }}
+        prodhub.in/ai-workspace-restart: {{ .Values.aiWorkspaceRestartNonce | default "enabled" | quote }}
+        {{- end }}
+      {{- else if .Values.aiCodeGenerationEnabled }}
+      annotations:
+        prodhub.in/ai-workspace-restart: {{ .Values.aiWorkspaceRestartNonce | default "enabled" | quote }}
       {{- end }}
     spec:
       {{- if or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer") (eq .Values.namespace "gateway") }}
@@ -122,6 +128,14 @@ spec:
           value: "{{.Values.ports}}"
         - name: ENV
           value: {{.Values.env}}
+        {{- if .Values.aiCodeGenerationEnabled }}
+        - name: AI_CODE_GENERATION_ENABLED
+          value: "true"
+        {{- if .Values.aiWorkspacePort }}
+        - name: AI_WORKSPACE_PORT
+          value: {{ .Values.aiWorkspacePort | quote }}
+        {{- end }}
+        {{- end }}
         resources:
           requests:
             cpu: {{.Values.cpuRequest}}
@@ -134,6 +148,34 @@ spec:
         volumeMounts:
         - name: {{ default .Release.Name .Values.baseReleaseName }}-configs
           mountPath: /tmp/configs
+      {{- if .Values.aiCodeGenerationEnabled }}
+      - name: ai-workspace
+        image: {{ .Values.aiWorkspaceImage | default "python:3.12-slim" | quote }}
+        command: ["sh", "-c"]
+        args:
+        - >-
+          set -eu;
+          mkdir -p /workspace;
+          python -m pip install --no-cache-dir --disable-pip-version-check aider-chat;
+          python -c 'import json, os, urllib.request; u=os.environ["AI_PRODHUB_URL"].rstrip("/")+"/credentialProvider/ai-workspace"; r=urllib.request.Request(u, headers={"X-Service-Name":"cloudedge-deployer","uuid":os.environ["AI_USER_ID"]}); d=json.load(urllib.request.urlopen(r, timeout=10)); names={"OpenAI":"OPENAI_API_KEY","Gemini":"GEMINI_API_KEY","Anthropic":"ANTHROPIC_API_KEY","DeepSeek":"DEEPSEEK_API_KEY","OpenRouter":"OPENROUTER_API_KEY"}; out=[]; [out.append(names[x.get("type")]+"="+json.loads(x["credentialMetadata"])["api_key"]) for x in d.get("response",[]) if x.get("credentialMetadata") and x.get("type") in names and json.loads(x["credentialMetadata"]).get("api_key")]; open("/workspace/.env","w").write("\\n".join(out)+"\\n")'
+          chmod 600 /workspace/.env;
+          exec sleep infinity
+        env:
+        - name: AI_PRODHUB_URL
+          value: {{ .Values.aiWorkspaceProdhubURL | quote }}
+        - name: AI_USER_ID
+          value: {{ .Values.aiWorkspaceUserID | quote }}
+        volumeMounts:
+        - name: ai-workspace
+          mountPath: /workspace
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+      {{- end }}
       volumes:
         {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
@@ -149,3 +191,7 @@ spec:
 {{- with .Values.configItems}}
 {{ toYaml . | indent 14}}
 {{- end}}
+        {{- if .Values.aiCodeGenerationEnabled }}
+        - name: ai-workspace
+          emptyDir: {}
+        {{- end }}
