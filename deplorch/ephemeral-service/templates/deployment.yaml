@@ -116,6 +116,8 @@ spec:
           value: {{ .Values.aiWorkspaceRepository | quote }}
         - name: AI_REPO_BRANCH
           value: {{ .Values.aiWorkspaceBranch | quote }}
+        - name: AI_PRODHUB_TOKEN
+          value: {{ .Values.aiWorkspaceToken | quote }}
         volumeMounts:
         - name: ai-workspace
           mountPath: /workspace
