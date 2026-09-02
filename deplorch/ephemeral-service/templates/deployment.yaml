@@ -103,27 +103,7 @@ spec:
             ephemeral-storage: {{.Values.ephemeralStorageLimit}}
       {{- if .Values.aiCodeGenerationEnabled }}
       - name: ai-workspace
-        image: {{ .Values.aiWorkspaceImage | default "python:3.12-slim" | quote }}
-        command: ["sh", "-c"]
-        args:
-        - >-
-          set -eu;
-          mkdir -p /workspace;
-          apt-get update;
-          apt-get install -y --no-install-recommends git ca-certificates;
-          rm -rf /var/lib/apt/lists/*;
-          python -m pip install --no-cache-dir --disable-pip-version-check aider-chat;
-          python -c 'import json, os, urllib.request; u=os.environ["AI_PRODHUB_URL"].rstrip("/")+"/credentialProvider/ai-workspace"; r=urllib.request.Request(u, headers={"X-Service-Name":"cloudedge-deployer","uuid":os.environ["AI_USER_ID"]}); d=json.load(urllib.request.urlopen(r, timeout=10)); names={"OpenAI":"OPENAI_API_KEY","Gemini":"GEMINI_API_KEY","Anthropic":"ANTHROPIC_API_KEY","DeepSeek":"DEEPSEEK_API_KEY","OpenRouter":"OPENROUTER_API_KEY"}; out=[]; [out.append(names[x.get("type")]+"="+json.loads(x["credentialMetadata"])["api_key"]) for x in d.get("response",[]) if x.get("credentialMetadata") and x.get("type") in names and json.loads(x["credentialMetadata"]).get("api_key")]; open("/workspace/.ai-env","w").write("\\n".join(out)+"\\n")';
-          python -c 'import json, os, urllib.request; u=os.environ["AI_PRODHUB_URL"].rstrip("/")+"/credentialProvider/scm-workspace/"+os.environ["AI_SCM_ID"]; r=urllib.request.Request(u, headers={"X-Service-Name":"cloudedge-deployer","uuid":os.environ["AI_USER_ID"]}); d=json.load(urllib.request.urlopen(r, timeout=10)); open("/workspace/.scm-credential.json","w").write(d["response"]["credentialMetadata"])';
-          python -c 'import json, os; d=json.load(open("/workspace/.scm-credential.json")); token=d.get("github_token") or d.get("gitlab_token") or d.get("bitbucket_app_password"); repo=os.environ["AI_REPOSITORY"].strip("/"); is_gitlab=bool(d.get("gitlab_token")); is_bitbucket=bool(d.get("bitbucket_app_password")); prefix=(d.get("gitlab_group") if is_gitlab else (d.get("bitbucket_workspace") if is_bitbucket else (d.get("github_org") or d.get("github_owner")))); repo=repo if "/" in repo or not prefix else prefix.strip("/")+"/"+repo; base=d.get("gitlab_url", "https://github.com").rstrip("/") if is_gitlab else ("https://bitbucket.org" if is_bitbucket else "https://github.com"); open("/workspace/.git-token","w").write((d.get("bitbucket_username", "git"))+"\\n"+str(token)+"\\n"); open("/workspace/.git-url","w").write(base+"/"+repo+".git") if token else (_ for _ in ()).throw(RuntimeError("SCM token was not found"))';
-          printf '#!/bin/sh\\ncase "$1" in *Username*) sed -n "1p" /workspace/.git-token ;; *) sed -n "2p" /workspace/.git-token ;; esac\\n' > /workspace/.git-askpass;
-          chmod 700 /workspace/.git-askpass;
-          export GIT_ASKPASS=/workspace/.git-askpass GIT_TERMINAL_PROMPT=0;
-          git clone --branch "$AI_REPO_BRANCH" "$(cat /workspace/.git-url)" /workspace/repository;
-          cp /workspace/.ai-env /workspace/repository/.env;
-          chmod 600 /workspace/repository/.env /workspace/.git-token /workspace/.scm-credential.json;
-          rm -f /workspace/.ai-env /workspace/.scm-credential.json /workspace/.git-token /workspace/.git-askpass /workspace/.git-url;
-          exec sleep infinity
+        image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:aider-0.86.2" | quote }}
         env:
         - name: AI_PRODHUB_URL
           value: {{ .Values.aiWorkspaceProdhubURL | quote }}
