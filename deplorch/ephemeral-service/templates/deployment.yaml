@@ -53,6 +53,7 @@ spec:
       {{- end }}
       imagePullSecrets:
       - name: {{ default .Release.Name .Values.baseReleaseName }}-dockerregistry
+      - name: dockerhub
       {{- if eq .Values.isNodeSelectorEnabled "enabled" }}
       tolerations:
       - effect: NoSchedule
