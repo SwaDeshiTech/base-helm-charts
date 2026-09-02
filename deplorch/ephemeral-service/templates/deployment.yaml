@@ -13,8 +13,6 @@ metadata:
     {{- if .Values.deploymentProfileName }}
     prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
     {{- end }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   replicas: {{ .Values.replicas | default 0 }}
   selector:
@@ -148,8 +146,9 @@ spec:
             cpu: "1"
             memory: "1Gi"
       {{- end }}
-      {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
+      {{- if or (eq .Values.isSharedMemoryEnabled "enabled") .Values.aiCodeGenerationEnabled }}
       volumes:
+      {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
           emptyDir:
             medium: Memory
@@ -158,4 +157,5 @@ spec:
       {{- if .Values.aiCodeGenerationEnabled }}
         - name: ai-workspace
           emptyDir: {}
+      {{- end }}
       {{- end }}
