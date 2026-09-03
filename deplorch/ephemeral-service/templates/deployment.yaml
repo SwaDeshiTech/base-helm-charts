@@ -115,9 +115,13 @@ spec:
       - name: ai-workspace
         image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:aider-0.86.2" | quote }}
         ports:
-        - containerPort: {{ .Values.aiWorkspacePort | default .Values.ports }}
+        - containerPort: {{ .Values.ports }}
           protocol: TCP
         env:
+        - name: PORT
+          value: {{ .Values.ports | quote }}
+        - name: SERVER_PORT
+          value: {{ .Values.ports | quote }}
         - name: AI_PRODHUB_URL
           value: {{ .Values.aiWorkspaceProdhubURL | quote }}
         - name: AI_USER_ID
