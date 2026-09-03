@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: {{ default .Release.Name .Values.baseReleaseName }}
   namespace: {{.Values.namespace}}
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     release: {{ default .Release.Name .Values.baseReleaseName | quote }}
     app.kubernetes.io/name: {{ default .Values.serviceName .Values.applicationName | quote }}
