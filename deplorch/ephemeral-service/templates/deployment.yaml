@@ -66,6 +66,7 @@ spec:
         app: {{.Values.nodeSelectorApp}}
       {{- end}}
       containers:
+      {{- if not .Values.aiCodeGenerationEnabled }}
       - image: {{.Values.registryURL}}/{{.Values.imageTag}}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
         command: [{{.Values.startUpCommand}}] 
@@ -95,6 +96,11 @@ spec:
           value: {{ .Values.aiWorkspacePort | quote }}
         {{- end }}
         {{- end }}
+        {{- if .Values.aiCodeGenerationEnabled }}
+        volumeMounts:
+        - name: ai-workspace
+          mountPath: /workspace
+        {{- end }}
         resources:
           requests:
             cpu: {{.Values.cpuRequest}}
@@ -104,6 +110,7 @@ spec:
             cpu: {{.Values.cpuLimit}}
             memory: {{.Values.memoryLimit}}
             ephemeral-storage: {{.Values.ephemeralStorageLimit}}
+      {{- end }}
       {{- if .Values.aiCodeGenerationEnabled }}
       - name: ai-workspace
         image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:aider-0.86.2" | quote }}
