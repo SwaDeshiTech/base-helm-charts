@@ -114,6 +114,9 @@ spec:
       {{- if .Values.aiCodeGenerationEnabled }}
       - name: ai-workspace
         image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:aider-0.86.2" | quote }}
+        ports:
+        - containerPort: {{ .Values.aiWorkspacePort | default .Values.ports }}
+          protocol: TCP
         env:
         - name: AI_PRODHUB_URL
           value: {{ .Values.aiWorkspaceProdhubURL | quote }}
