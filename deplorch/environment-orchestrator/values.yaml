@@ -19,7 +19,7 @@ coredns:
 haproxy:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-haproxyproduction-4698229-fdb58dc
+    tag: environmentorchestrator-haproxyproduction-4698229-3d9a4cf
   service:
     type: ClusterIP
     port: 80
