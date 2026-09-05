@@ -141,11 +141,13 @@ spec:
           mountPath: /workspace
         resources:
           requests:
-            cpu: "100m"
-            memory: "256Mi"
+            cpu: {{ .Values.cpuRequest }}
+            memory: {{ .Values.memoryRequest }}
+            ephemeral-storage: {{ .Values.ephemeralStorageRequest }}
           limits:
-            cpu: "1"
-            memory: "1Gi"
+            cpu: {{ .Values.cpuLimit }}
+            memory: {{ .Values.memoryLimit }}
+            ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
       {{- end }}
       {{- if or (eq .Values.isSharedMemoryEnabled "enabled") .Values.aiCodeGenerationEnabled }}
       volumes:
