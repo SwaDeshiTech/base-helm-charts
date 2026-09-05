@@ -53,6 +53,7 @@ spec:
       {{- else }}
       dnsPolicy: ClusterFirst
       {{- end }}
+      imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
       imagePullSecrets:
       - name: {{ default .Release.Name .Values.baseReleaseName }}-dockerregistry
       - name: dockerhub
