@@ -69,7 +69,7 @@ spec:
       {{- if not .Values.aiCodeGenerationEnabled }}
       - image: {{.Values.registryURL}}/{{.Values.imageTag}}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
-        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
         command: [{{.Values.startUpCommand}}] 
         ports:
         - containerPort: {{.Values.ports}}
@@ -115,7 +115,7 @@ spec:
       {{- if .Values.aiCodeGenerationEnabled }}
       - name: ai-workspace
         image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:open-interpreter" | quote }}
-        imagePullPolicy: {{ .Values.imagePullPolicy | default "IfNotPresent" | quote }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
         ports:
         - containerPort: {{ .Values.ports }}
           protocol: TCP
