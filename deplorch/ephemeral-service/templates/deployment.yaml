@@ -37,6 +37,10 @@ spec:
         {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
+      {{- if .Values.aiCodeGenerationEnabled }}
+      # AI workspaces do not need in-cluster API access; terminal access is proxied by CloudEdge.
+      automountServiceAccountToken: false
+      {{- end }}
       {{- if .Values.environmentOrchestratorDns.enabled }}
       dnsPolicy: None
       dnsConfig:
@@ -114,7 +118,7 @@ spec:
       {{- end }}
       {{- if .Values.aiCodeGenerationEnabled }}
       - name: ai-workspace
-        image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:open-interpreter" | quote }}
+        image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:opencode" | quote }}
         imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
         ports:
         - containerPort: {{ .Values.ports }}
