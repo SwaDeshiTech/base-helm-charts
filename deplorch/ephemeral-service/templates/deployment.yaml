@@ -22,6 +22,13 @@ spec:
       release: {{ default .Release.Name .Values.baseReleaseName }}
   template:
     metadata:
+      annotations:
+        {{- if .Values.restartNonce }}
+        prodhub.in/restart: {{ .Values.restartNonce | quote }}
+        {{- end }}
+        {{- if .Values.aiCodeGenerationEnabled }}
+        prodhub.in/ai-workspace-restart: {{ .Values.aiWorkspaceRestartNonce | default "enabled" | quote }}
+        {{- end }}
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName | quote }}
         app.kubernetes.io/name: {{ default .Values.serviceName .Values.applicationName | quote }}
@@ -31,9 +38,6 @@ spec:
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
         {{- if .Values.deploymentProfileName }}
         prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
-        {{- end }}
-        {{- if .Values.aiCodeGenerationEnabled }}
-        prodhub.in/ai-workspace-restart: {{ .Values.aiWorkspaceRestartNonce | default "enabled" | quote }}
         {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
