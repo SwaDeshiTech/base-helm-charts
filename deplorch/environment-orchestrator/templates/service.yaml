@@ -19,6 +19,10 @@ spec:
       port: {{ .Values.coredns.service.port }}
       targetPort: 53
       protocol: TCP
+    - name: http
+      port: {{ .Values.coredns.service.httpPort }}
+      targetPort: 8080
+      protocol: TCP
   selector:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
 ---

@@ -15,6 +15,7 @@ coredns:
     type: ClusterIP
     clusterIP: ""
     port: 53
+    httpPort: 8080
 
 haproxy:
   image:
