@@ -1,3 +1,31 @@
+{{- $portEntries := list -}}
+{{- $seenPorts := dict -}}
+{{- $portSources := list
+      (dict "kind" "http" "value" (.Values.httpPort | default ""))
+      (dict "kind" "grpc" "value" (.Values.grpcPort | default ""))
+      (dict "kind" "tcp" "value" (.Values.tcpPort | default ""))
+      (dict "kind" "tcp" "value" (.Values.ports | default "")) -}}
+{{- range $source := $portSources -}}
+  {{- range $rawPort := splitList "," (toString $source.value) -}}
+    {{- $port := trim $rawPort -}}
+    {{- if $port -}}
+      {{- if not (regexMatch "^[0-9]+$" $port) -}}
+        {{- fail (printf "invalid %s port %q: ports must be comma-separated numbers" $source.kind $port) -}}
+      {{- end -}}
+      {{- $portNumber := int $port -}}
+      {{- if or (lt $portNumber 1) (gt $portNumber 65535) -}}
+        {{- fail (printf "invalid %s port %q: port must be between 1 and 65535" $source.kind $port) -}}
+      {{- end -}}
+      {{- if not (hasKey $seenPorts $port) -}}
+        {{- $_ := set $seenPorts $port true -}}
+        {{- $portEntries = append $portEntries (dict "kind" $source.kind "port" $portNumber) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if eq (len $portEntries) 0 -}}
+  {{- fail "at least one HTTP, gRPC, or TCP port is required" -}}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -16,19 +44,9 @@ spec:
     release: {{ default .Release.Name .Values.baseReleaseName }}
   type: ClusterIP
   ports:
-    {{- if eq .Values.isGRPCPortEnabled "enabled" }}
-    - name: grpc
-      port: 80
+    {{- range $entry := $portEntries }}
+    - name: {{ printf "%s-%d" $entry.kind $entry.port | trunc 15 | trimSuffix "-" }}
+      port: {{ $entry.port }}
       protocol: TCP
-      targetPort: {{.Values.grpcPort}}
-    - name: http
-      port: 8080
-      protocol: TCP
-      targetPort: {{.Values.ports}}
-    {{- else}}
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: {{.Values.ports}}
-    {{- end}}
-
+      targetPort: {{ $entry.port }}
+    {{- end }}
