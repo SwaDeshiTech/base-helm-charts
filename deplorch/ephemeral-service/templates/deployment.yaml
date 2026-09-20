@@ -103,53 +103,6 @@ spec:
         app: {{.Values.nodeSelectorApp}}
       {{- end}}
       containers:
-      {{- if not $aiModeEnabled }}
-      - image: {{.Values.registryURL}}/{{.Values.imageTag}}
-        name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
-        imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
-        command: [{{.Values.startUpCommand}}] 
-        ports:
-        {{- range $entry := $portEntries }}
-        - name: {{ printf "%s-%d" $entry.kind $entry.port | trunc 15 | trimSuffix "-" }}
-          containerPort: {{ $entry.port }}
-          protocol: TCP
-        {{- end }}
-        env:
-        - name: APP
-          value: {{.Values.serviceName}}
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: PORT
-          value: {{ (index $portEntries 0).port | quote }}
-        - name: SERVER_PORT
-          value: {{ (index $portEntries 0).port | quote }}
-        - name: ENV
-          value: {{.Values.env}}
-        {{- if $aiModeEnabled }}
-        - name: AI_CODE_GENERATION_ENABLED
-          value: "true"
-        {{- if .Values.aiWorkspacePort }}
-        - name: AI_WORKSPACE_PORT
-          value: {{ .Values.aiWorkspacePort | quote }}
-        {{- end }}
-        {{- end }}
-        {{- if $aiModeEnabled }}
-        volumeMounts:
-        - name: ai-workspace
-          mountPath: /workspace
-        {{- end }}
-        resources:
-          requests:
-            cpu: {{.Values.cpuRequest}}
-            memory: {{.Values.memoryRequest}}
-            ephemeral-storage: {{.Values.ephemeralStorageRequest}}
-          limits:
-            cpu: {{.Values.cpuLimit}}
-            memory: {{.Values.memoryLimit}}
-            ephemeral-storage: {{.Values.ephemeralStorageLimit}}
-      {{- end }}
       {{- if $aiModeEnabled }}
       - name: ai-workspace
         image: {{ .Values.aiWorkspaceImage | default "dockerhub.prodhub.in/prodhub-ai-workspace:opencode" | quote }}
@@ -189,6 +142,39 @@ spec:
             cpu: {{ .Values.cpuLimit }}
             memory: {{ .Values.memoryLimit }}
             ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
+      {{- else }}
+      - image: {{.Values.registryURL}}/{{.Values.imageTag}}
+        name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
+        imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
+        command: [{{.Values.startUpCommand}}]
+        ports:
+        {{- range $entry := $portEntries }}
+        - name: {{ printf "%s-%d" $entry.kind $entry.port | trunc 15 | trimSuffix "-" }}
+          containerPort: {{ $entry.port }}
+          protocol: TCP
+        {{- end }}
+        env:
+        - name: APP
+          value: {{.Values.serviceName}}
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: PORT
+          value: {{ (index $portEntries 0).port | quote }}
+        - name: SERVER_PORT
+          value: {{ (index $portEntries 0).port | quote }}
+        - name: ENV
+          value: {{.Values.env}}
+        resources:
+          requests:
+            cpu: {{.Values.cpuRequest}}
+            memory: {{.Values.memoryRequest}}
+            ephemeral-storage: {{.Values.ephemeralStorageRequest}}
+          limits:
+            cpu: {{.Values.cpuLimit}}
+            memory: {{.Values.memoryLimit}}
+            ephemeral-storage: {{.Values.ephemeralStorageLimit}}
       {{- end }}
       {{- if or (eq .Values.isSharedMemoryEnabled "enabled") $aiModeEnabled }}
       volumes:
