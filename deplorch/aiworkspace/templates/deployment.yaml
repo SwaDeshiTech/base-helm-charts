@@ -1,0 +1,63 @@
+{{- $port := required "httpPort is required" .Values.httpPort | int -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}
+  namespace: {{ required "namespace is required" .Values.namespace }}
+  labels:
+    release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+    app.kubernetes.io/name: {{ required "applicationName is required" .Values.applicationName | quote }}
+    prodhub.in/application: {{ required "applicationName is required" .Values.applicationName | quote }}
+    prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+  template:
+    metadata:
+      labels:
+        release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+        app.kubernetes.io/name: {{ .Values.applicationName | quote }}
+        prodhub.in/application: {{ .Values.applicationName | quote }}
+        prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: dockerhub
+      containers:
+        - name: ai-workspace
+          image: {{ .Values.aiWorkspaceImage | quote }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          ports:
+            - name: http
+              containerPort: {{ $port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.httpPort | quote }}
+            - name: SERVER_PORT
+              value: {{ .Values.httpPort | quote }}
+            - name: AI_PRODHUB_URL
+              value: {{ .Values.aiWorkspaceProdhubURL | quote }}
+            - name: AI_USER_ID
+              value: {{ .Values.aiWorkspaceUserID | quote }}
+            - name: AI_PRODHUB_TOKEN
+              value: {{ .Values.aiWorkspaceToken | quote }}
+            - name: PRODHUB_PREVIEW_URL
+              value: {{ .Values.aiWorkspacePreviewUrl | quote }}
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+          resources:
+            requests:
+              cpu: {{ .Values.cpuRequest }}
+              memory: {{ .Values.memoryRequest }}
+              ephemeral-storage: {{ .Values.ephemeralStorageRequest }}
+            limits:
+              cpu: {{ .Values.cpuLimit }}
+              memory: {{ .Values.memoryLimit }}
+              ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
+      volumes:
+        - name: workspace
+          emptyDir: {}

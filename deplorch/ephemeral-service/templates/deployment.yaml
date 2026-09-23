@@ -130,6 +130,8 @@ spec:
           value: {{ .Values.aiWorkspaceBranch | quote }}
         - name: AI_PRODHUB_TOKEN
           value: {{ .Values.aiWorkspaceToken | quote }}
+        - name: PRODHUB_PREVIEW_URL
+          value: {{ .Values.aiWorkspacePreviewUrl | quote }}
         volumeMounts:
         - name: ai-workspace
           mountPath: /workspace
