@@ -16,6 +16,10 @@ spec:
       release: {{ default .Release.Name .Values.baseReleaseName | quote }}
   template:
     metadata:
+      annotations:
+        {{- if .Values.restartNonce }}
+        prodhub.in/restart: {{ .Values.restartNonce | quote }}
+        {{- end }}
       labels:
         release: {{ default .Release.Name .Values.baseReleaseName | quote }}
         app.kubernetes.io/name: {{ .Values.applicationName | quote }}
