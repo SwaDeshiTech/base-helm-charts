@@ -27,7 +27,7 @@ spec:
         - name: dockerhub
       containers:
         - name: ai-workspace
-          image: {{ .Values.aiWorkspaceImage | quote }}
+          image: {{ required "aiWorkspaceImage is required" .Values.aiWorkspaceImage | quote }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
           ports:
             - name: http
