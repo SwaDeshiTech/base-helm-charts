@@ -69,6 +69,17 @@ spec:
               value: "true"
             - name: PRODHUB_PREVIEW_URL
               value: {{ .Values.aiWorkspacePreviewUrl | quote }}
+            # Keep user-writable tool state off the read-only container filesystem.
+            - name: HOME
+              value: /workspace
+            - name: XDG_CONFIG_HOME
+              value: /workspace/.config
+            - name: XDG_DATA_HOME
+              value: /workspace/.local/share
+            - name: XDG_CACHE_HOME
+              value: /workspace/.cache
+            - name: BUN_INSTALL
+              value: /workspace/.bun
           volumeMounts:
             - name: workspace
               mountPath: /workspace
