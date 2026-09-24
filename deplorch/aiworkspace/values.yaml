@@ -13,6 +13,6 @@ replicas: 1
 cpuRequest: 250m
 cpuLimit: 1000m
 memoryRequest: 256Mi
-memoryLimit: 2Gi
+memoryLimit: 4Gi
 ephemeralStorageRequest: 1Gi
 ephemeralStorageLimit: 4Gi

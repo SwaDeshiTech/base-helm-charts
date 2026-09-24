@@ -7,3 +7,9 @@ environmentOrchestratorDns:
   options:
     - name: ndots
       value: "2"
+aiWorkspaceCpuRequest: 250m
+aiWorkspaceCpuLimit: 1000m
+aiWorkspaceMemoryRequest: 256Mi
+aiWorkspaceMemoryLimit: 4Gi
+aiWorkspaceEphemeralStorageRequest: 1Gi
+aiWorkspaceEphemeralStorageLimit: 4Gi

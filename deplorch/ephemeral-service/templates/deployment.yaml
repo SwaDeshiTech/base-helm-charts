@@ -167,13 +167,13 @@ spec:
           mountPath: /tmp
         resources:
           requests:
-            cpu: {{ .Values.cpuRequest }}
-            memory: {{ .Values.memoryRequest }}
-            ephemeral-storage: {{ .Values.ephemeralStorageRequest }}
+            cpu: {{ .Values.aiWorkspaceCpuRequest | default .Values.cpuRequest }}
+            memory: {{ .Values.aiWorkspaceMemoryRequest | default .Values.memoryRequest }}
+            ephemeral-storage: {{ .Values.aiWorkspaceEphemeralStorageRequest | default .Values.ephemeralStorageRequest }}
           limits:
-            cpu: {{ .Values.cpuLimit }}
-            memory: {{ .Values.memoryLimit }}
-            ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
+            cpu: {{ .Values.aiWorkspaceCpuLimit | default .Values.cpuLimit }}
+            memory: {{ .Values.aiWorkspaceMemoryLimit | default .Values.memoryLimit }}
+            ephemeral-storage: {{ .Values.aiWorkspaceEphemeralStorageLimit | default .Values.ephemeralStorageLimit }}
       {{- else }}
       - image: {{.Values.registryURL}}/{{.Values.imageTag}}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
