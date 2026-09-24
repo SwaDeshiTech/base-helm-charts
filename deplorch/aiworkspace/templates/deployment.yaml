@@ -27,12 +27,29 @@ spec:
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
     spec:
       automountServiceAccountToken: false
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       imagePullSecrets:
         - name: dockerhub
       containers:
         - name: ai-workspace
           image: {{ required "aiWorkspaceImage is required" .Values.aiWorkspaceImage | quote }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: http
               containerPort: {{ $port }}
@@ -55,6 +72,8 @@ spec:
           volumeMounts:
             - name: workspace
               mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               cpu: {{ .Values.cpuRequest }}
@@ -66,4 +85,6 @@ spec:
               ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
       volumes:
         - name: workspace
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
