@@ -1,11 +1,13 @@
 {{- $port := required "httpPort is required" .Values.httpPort | int -}}
+{{- $releaseName := default .Release.Name .Values.baseReleaseName -}}
+{{- $workspaceClaimName := default (printf "%s-workspace" $releaseName | trunc 63 | trimSuffix "-") .Values.persistence.existingClaim -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ default .Release.Name .Values.baseReleaseName }}
+  name: {{ $releaseName }}
   namespace: {{ required "namespace is required" .Values.namespace }}
   labels:
-    release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+    release: {{ $releaseName | quote }}
     app.kubernetes.io/name: {{ required "applicationName is required" .Values.applicationName | quote }}
     prodhub.in/application: {{ required "applicationName is required" .Values.applicationName | quote }}
     prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
@@ -13,7 +15,7 @@ spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      release: {{ default .Release.Name .Values.baseReleaseName | quote }}
+      release: {{ $releaseName | quote }}
   template:
     metadata:
       annotations:
@@ -96,6 +98,11 @@ spec:
               ephemeral-storage: {{ .Values.ephemeralStorageLimit }}
       volumes:
         - name: workspace
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $workspaceClaimName | quote }}
+          {{- else }}
           emptyDir: {}
+          {{- end }}
         - name: tmp
           emptyDir: {}

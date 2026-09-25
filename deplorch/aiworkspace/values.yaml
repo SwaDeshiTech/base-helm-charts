@@ -16,3 +16,12 @@ memoryRequest: 256Mi
 memoryLimit: 4Gi
 ephemeralStorageRequest: 1Gi
 ephemeralStorageLimit: 4Gi
+persistence:
+  # A workspace PVC retains the repository, generated code, and OpenCode state across pod restarts.
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  # Leave blank to use the cluster's default StorageClass.
+  storageClass: ""
+  # Set to mount a pre-provisioned claim rather than creating a per-workspace claim.
+  existingClaim: ""
