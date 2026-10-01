@@ -82,6 +82,10 @@ spec:
               value: /workspace/.cache
             - name: BUN_INSTALL
               value: /workspace/.bun
+            # Keep OpenCode's user configuration alongside its XDG-backed session
+            # data on the workspace volume, so it survives a persistent restart.
+            - name: OPENCODE_CONFIG_DIR
+              value: /workspace/.opencode
           volumeMounts:
             - name: workspace
               mountPath: /workspace

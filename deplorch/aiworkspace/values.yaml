@@ -17,7 +17,7 @@ memoryLimit: 4Gi
 ephemeralStorageRequest: 1Gi
 ephemeralStorageLimit: 4Gi
 persistence:
-  # A workspace PVC retains the repository, generated code, and OpenCode state across pod restarts.
+  # A workspace PVC retains the repository, generated code, and OpenCode configuration/session state across pod restarts.
   enabled: true
   accessMode: ReadWriteOnce
   size: 5Gi
