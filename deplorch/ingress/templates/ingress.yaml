@@ -4,9 +4,6 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   namespace: {{ .Values.namespace }}
-  {{- if .Values.ingressClassName }}
-  ingressClassName: {{ .Values.ingressClassName }}
-  {{- end }}
   {{- $annotations := .Values.ingressAnnotations }}
   {{- if and $annotations (kindIs "string" $annotations) }}
     {{- $annotations = fromJson $annotations }}
@@ -35,6 +32,9 @@ metadata:
   {{- end }}
 {{- end }}
 spec:
+  {{- if .Values.ingressClassName }}
+  ingressClassName: {{ .Values.ingressClassName | quote }}
+  {{- end }}
   rules:
     {{- toYaml $ingressRules | nindent 4 }}
 {{- end }}
