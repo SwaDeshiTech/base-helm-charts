@@ -17,6 +17,11 @@ metadata:
   {{- $ingressRules = $ingressRules | replace "\\n" "\n" }}
   {{- $ingressRules = fromYamlArray $ingressRules }}
 {{- end }}
+{{- $ingressTLS := .Values.ingressTls }}
+{{- if and $ingressTLS (kindIs "string" $ingressTLS) }}
+  {{- $ingressTLS = $ingressTLS | replace "\\n" "\n" }}
+  {{- $ingressTLS = fromYamlArray $ingressTLS }}
+{{- end }}
 {{- if and $ingressRules (kindIs "slice" $ingressRules) }}
   {{- range $idx, $rule := $ingressRules }}
     {{- if and $rule.http $rule.http.paths (not (hasKey ($rule.http.paths | first) "backend")) }}
@@ -34,6 +39,10 @@ metadata:
 spec:
   {{- if .Values.ingressClassName }}
   ingressClassName: {{ .Values.ingressClassName | quote }}
+  {{- end }}
+  {{- if and $ingressTLS (kindIs "slice" $ingressTLS) }}
+  tls:
+    {{- toYaml $ingressTLS | nindent 4 }}
   {{- end }}
   rules:
     {{- toYaml $ingressRules | nindent 4 }}
