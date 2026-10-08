@@ -53,7 +53,9 @@ spec:
       {{- end }}
     spec:
       {{- if or (eq .Values.namespace "prodhub") (eq .Values.namespace "cicaptain") (eq .Values.namespace "cloudedgedeployer") (eq .Values.namespace "gateway") }}
-      serviceAccountName: prodhub-sa
+      # Must match the name rendered by the service-account chart.  The
+      # default is also the name bound to the Vault Kubernetes auth role.
+      serviceAccountName: {{ default "prodhub-sa" .Values.serviceAccountName }}
       {{- else if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
