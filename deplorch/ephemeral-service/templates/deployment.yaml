@@ -175,7 +175,7 @@ spec:
             memory: {{ .Values.aiWorkspaceMemoryLimit | default .Values.memoryLimit }}
             ephemeral-storage: {{ .Values.aiWorkspaceEphemeralStorageLimit | default .Values.ephemeralStorageLimit }}
       {{- else }}
-      - image: {{.Values.registryURL}}/{{.Values.imageTag}}
+      - image: {{ if .Values.registryURL }}{{ printf "%s/%s" .Values.registryURL .Values.imageTag | quote }}{{ else }}{{ .Values.imageTag | quote }}{{ end }}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
         imagePullPolicy: {{ .Values.imagePullPolicy | default "Always" | quote }}
         command: [{{.Values.startUpCommand}}]

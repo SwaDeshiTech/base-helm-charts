@@ -73,7 +73,7 @@ spec:
         app: {{.Values.nodeSelectorApp}}
       {{- end}}
       containers:
-      - image: {{.Values.registryURL}}/{{.Values.image}}
+      - image: {{ if .Values.registryURL }}{{ printf "%s/%s" .Values.registryURL .Values.image | quote }}{{ else }}{{ .Values.image | quote }}{{ end }}
         name: {{ .Values.serviceName | default (default .Release.Name .Values.baseReleaseName) }}
         command: [{{.Values.startUpCommand}}] 
         ports:
