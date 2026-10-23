@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,11 +6,14 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . | quote }}
+  {{- end }}
   rules:
     - host: "*.{{ default .Values.namespace .Values.ephemeralEnvironmentName }}.init.prodhub.in"
       http:
@@ -21,3 +25,4 @@ spec:
                 name: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}-proxy
                 port:
                   number: 80
+{{- end }}
