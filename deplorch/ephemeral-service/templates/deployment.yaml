@@ -1,4 +1,10 @@
 {{- $aiModeEnabled := eq (lower (toString .Values.aiCodeGenerationEnabled)) "true" -}}
+{{- $applicationName := trimAll "-" (regexReplaceAll "[^a-z0-9-]+" (lower (toString (default .Values.serviceName .Values.applicationName))) "-") -}}
+{{- $deploymentProfileName := trimAll "-" (regexReplaceAll "[^a-z0-9-]+" (lower (toString (.Values.deploymentProfileName | default ""))) "-") -}}
+{{- $routeHash := "" -}}
+{{- if and $applicationName $deploymentProfileName -}}
+  {{- $routeHash = trunc 10 (sha256sum (printf "%s-%s" $deploymentProfileName $applicationName)) -}}
+{{- end -}}
 {{- $portEntries := list -}}
 {{- $seenPorts := dict -}}
 {{- $portSources := list
@@ -44,6 +50,9 @@ metadata:
     {{- if .Values.deploymentProfileName }}
     prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
     {{- end }}
+    {{- if $routeHash }}
+    prodhub.in/route-hash: {{ $routeHash | quote }}
+    {{- end }}
 spec:
   replicas: {{ .Values.replicas | default 0 }}
   selector:
@@ -67,6 +76,9 @@ spec:
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
         {{- if .Values.deploymentProfileName }}
         prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
+        {{- end }}
+        {{- if $routeHash }}
+        prodhub.in/route-hash: {{ $routeHash | quote }}
         {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
