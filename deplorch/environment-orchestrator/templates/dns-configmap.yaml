@@ -1,3 +1,8 @@
+{{- $existing := lookup "v1" "ConfigMap" .Values.namespace .Values.config.dnsConfigMapName }}
+{{- $existingData := default (dict) $existing.data }}
+{{- $hosts := default "" (index $existingData "hosts") }}
+{{- $revision := default "0" (index $existingData "revision") }}
+{{- $customRecords := default "[]" (index $existingData "custom-records.json") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,9 +13,9 @@ metadata:
     app.kubernetes.io/managed-by: environment-orchestrator
     prodhub.in/dns-scope: namespace
 data:
-  # The listener replaces this with the current ready Pod and Service records.
-  hosts: ""
-  revision: "0"
+  # Preserve live state on Helm upgrades. The listener owns discovered records.
+  hosts: {{ $hosts | quote }}
+  revision: {{ $revision | quote }}
   # CloudEdge owns user-managed overrides; the listener preserves this key when
   # refreshing discovered records and CoreDNS consumes it read-only.
-  custom-records.json: "[]"
+  custom-records.json: {{ $customRecords | quote }}
