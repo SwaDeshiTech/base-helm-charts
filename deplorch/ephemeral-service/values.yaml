@@ -2,6 +2,7 @@ environmentOrchestratorDns:
   enabled: false
   nameserver: ""
   searches:
+    - prodhub.in
     - svc.cluster.local
     - cluster.local
   options:
