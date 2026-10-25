@@ -7,9 +7,14 @@ environmentOrchestratorDns:
   options:
     - name: ndots
       value: "2"
+# Preview Space containers receive a bounded writable /tmp volume.
+previewTmpEmptyDirSizeLimit: 1Gi
 aiWorkspaceCpuRequest: 250m
 aiWorkspaceCpuLimit: 1000m
 aiWorkspaceMemoryRequest: 256Mi
 aiWorkspaceMemoryLimit: 4Gi
 aiWorkspaceEphemeralStorageRequest: 1Gi
 aiWorkspaceEphemeralStorageLimit: 4Gi
+# Keep transient workspace and /tmp writes within independent quotas.
+aiWorkspaceEmptyDirSizeLimit: 3Gi
+aiWorkspaceTmpEmptyDirSizeLimit: 1Gi

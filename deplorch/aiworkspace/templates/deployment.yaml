@@ -29,6 +29,7 @@ spec:
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       hostNetwork: false
       hostPID: false
       hostIPC: false
@@ -106,7 +107,9 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $workspaceClaimName | quote }}
           {{- else }}
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: {{ .Values.workspaceEmptyDirSizeLimit | quote }}
           {{- end }}
         - name: tmp
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: {{ .Values.tmpEmptyDirSizeLimit | quote }}

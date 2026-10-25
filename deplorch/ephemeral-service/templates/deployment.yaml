@@ -82,6 +82,9 @@ spec:
         {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
+      # Service discovery remains available over DNS; do not inject service
+      # addresses as environment variables into untrusted Preview Space code.
+      enableServiceLinks: false
       {{- if $aiModeEnabled }}
       # AI workspaces do not need in-cluster API access; terminal access is proxied by CloudEdge.
       automountServiceAccountToken: false
@@ -210,6 +213,9 @@ spec:
           value: {{ (index $portEntries 0).port | quote }}
         - name: ENV
           value: {{.Values.env}}
+        volumeMounts:
+        - name: preview-tmp
+          mountPath: /tmp
         resources:
           requests:
             cpu: {{.Values.cpuRequest}}
@@ -220,8 +226,12 @@ spec:
             memory: {{.Values.memoryLimit}}
             ephemeral-storage: {{.Values.ephemeralStorageLimit}}
       {{- end }}
-      {{- if or (eq .Values.isSharedMemoryEnabled "enabled") $aiModeEnabled }}
       volumes:
+      {{- if not $aiModeEnabled }}
+        - name: preview-tmp
+          emptyDir:
+            sizeLimit: {{ .Values.previewTmpEmptyDirSizeLimit | quote }}
+      {{- end }}
       {{- if eq .Values.isSharedMemoryEnabled "enabled"}}
         - name: sharedmemory-{{.Values.serviceName}}
           emptyDir:
@@ -230,8 +240,9 @@ spec:
       {{- end}}
       {{- if $aiModeEnabled }}
         - name: ai-workspace
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: {{ .Values.aiWorkspaceEmptyDirSizeLimit | quote }}
         - name: ai-workspace-tmp
-          emptyDir: {}
-      {{- end }}
+          emptyDir:
+            sizeLimit: {{ .Values.aiWorkspaceTmpEmptyDirSizeLimit | quote }}
       {{- end }}
