@@ -35,6 +35,8 @@ config:
   serviceDomain: "prodhub.in"
   upstreamDnsAddr: "8.8.8.8:53"
   dnsConfigMapName: "environment-orchestrator-dns"
+  dnsConfigMapMountPath: "/var/run/environment-orchestrator-dns"
+  customDnsRecordsFile: "/var/run/environment-orchestrator-dns/custom-records.json"
   resyncInterval: "30s"
   syncTimeout: "5s"
 

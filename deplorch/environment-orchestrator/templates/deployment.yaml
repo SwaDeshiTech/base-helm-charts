@@ -37,6 +37,12 @@ spec:
               value: {{ .Values.config.serviceDomain | quote }}
             - name: UPSTREAM_DNS_ADDR
               value: {{ .Values.config.upstreamDnsAddr | quote }}
+            - name: CUSTOM_DNS_RECORDS_FILE
+              value: {{ .Values.config.customDnsRecordsFile | quote }}
+          volumeMounts:
+            - name: dns-records
+              mountPath: {{ .Values.config.dnsConfigMapMountPath | quote }}
+              readOnly: true
           livenessProbe:
             httpGet:
               path: /healthz
@@ -100,3 +106,7 @@ spec:
               value: "http://localhost:8081/endpoints"
             - name: COREDNS_SYNC_URL
               value: "http://localhost:8080/endpoints"
+      volumes:
+        - name: dns-records
+          configMap:
+            name: {{ .Values.config.dnsConfigMapName | quote }}

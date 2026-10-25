@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.config.dnsConfigMapName | quote }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
+    app.kubernetes.io/managed-by: environment-orchestrator
+    prodhub.in/dns-scope: namespace
+data:
+  # The listener replaces this with the current ready Pod and Service records.
+  hosts: ""
+  revision: "0"
+  # CloudEdge owns user-managed overrides; the listener preserves this key when
+  # refreshing discovered records and CoreDNS consumes it read-only.
+  custom-records.json: "[]"
