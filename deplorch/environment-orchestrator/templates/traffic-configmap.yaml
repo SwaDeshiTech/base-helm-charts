@@ -1,0 +1,9 @@
+{{- $existing := lookup "v1" "ConfigMap" .Values.namespace .Values.config.trafficConfigMapName }}
+{{- $data := default (dict) $existing.data }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.config.trafficConfigMapName | quote }}
+  namespace: {{ .Values.namespace }}
+data:
+  source-ranges.txt: {{ default "" (index $data "source-ranges.txt") | quote }}

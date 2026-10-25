@@ -1,3 +1,16 @@
+{{- $environmentName := default .Values.namespace .Values.ephemeralEnvironmentName }}
+{{- if and .Values.ingress.enabled .Values.ingress.ipAllowList.enabled (gt (len .Values.ingress.ipAllowList.sourceRanges) 0) }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: environment-orchestrator-{{ $environmentName }}-ip-allowlist
+  namespace: {{ .Values.namespace }}
+spec:
+  ipAllowList:
+    sourceRange:
+{{ toYaml .Values.ingress.ipAllowList.sourceRanges | indent 6 }}
+---
+{{- end }}
 {{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -6,10 +19,13 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     release: environment-orchestrator-{{ default .Values.namespace .Values.ephemeralEnvironmentName }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
+    {{- if and .Values.ingress.ipAllowList.enabled (gt (len .Values.ingress.ipAllowList.sourceRanges) 0) }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-environment-orchestrator-%s-ip-allowlist@kubernetescrd" .Values.namespace $environmentName | quote }}
+    {{- end }}
 spec:
   {{- with .Values.ingress.className }}
   ingressClassName: {{ . | quote }}

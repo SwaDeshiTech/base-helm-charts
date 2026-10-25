@@ -63,6 +63,8 @@ spec:
               containerPort: 8081
               protocol: TCP
           env:
+            - name: HAPROXY_ALLOWLIST_FILE
+              value: {{ .Values.config.trafficAllowlistFile | quote }}
             - name: HAPROXY_RELOAD_COMMAND
               value: >-
                 set -eu;
@@ -85,6 +87,10 @@ spec:
             httpGet:
               path: /healthz
               port: 8081
+          volumeMounts:
+            - name: traffic-allowlist
+              mountPath: {{ .Values.config.trafficConfigMapMountPath | quote }}
+              readOnly: true
 
         - name: listener
           image: "{{ .Values.listener.image.repository }}:{{ .Values.listener.image.tag }}"
@@ -107,6 +113,9 @@ spec:
             - name: COREDNS_SYNC_URL
               value: "http://localhost:8080/endpoints"
       volumes:
+        - name: traffic-allowlist
+          configMap:
+            name: {{ .Values.config.trafficConfigMapName | quote }}
         - name: dns-records
           configMap:
             name: {{ .Values.config.dnsConfigMapName | quote }}

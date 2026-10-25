@@ -10,7 +10,7 @@ imagePullSecrets:
 coredns:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-corednsproduction-1629940-214aee9
+    tag: environmentorchestrator-corednsproduction-1629940-8b79ede
   service:
     type: ClusterIP
     clusterIP: ""
@@ -20,7 +20,7 @@ coredns:
 haproxy:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-haproxyproduction-0862575-1c290d8
+    tag: environmentorchestrator-haproxyproduction-0862575-8b79ede
   service:
     type: ClusterIP
     port: 80
@@ -29,7 +29,7 @@ haproxy:
 listener:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-listenerproduction-9472757-1c290d8
+    tag: environmentorchestrator-listenerproduction-9472757-8b79ede
 
 config:
   serviceDomain: "prodhub.in"
@@ -37,6 +37,9 @@ config:
   dnsConfigMapName: "environment-orchestrator-dns"
   dnsConfigMapMountPath: "/var/run/environment-orchestrator-dns"
   customDnsRecordsFile: "/var/run/environment-orchestrator-dns/custom-records.json"
+  trafficConfigMapName: "environment-orchestrator-traffic"
+  trafficConfigMapMountPath: "/var/run/environment-orchestrator-traffic"
+  trafficAllowlistFile: "/var/run/environment-orchestrator-traffic/source-ranges.txt"
   resyncInterval: "30s"
   syncTimeout: "5s"
 
@@ -50,6 +53,9 @@ ingress:
   enabled: true
   className: "traefik"
   annotations: {}
+  ipAllowList:
+    enabled: false
+    sourceRanges: []
 
 nodeSelector: {}
 tolerations: []
