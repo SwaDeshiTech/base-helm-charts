@@ -1,6 +1,11 @@
 {{- $aiModeEnabled := eq (lower (toString .Values.aiCodeGenerationEnabled)) "true" -}}
 {{- $applicationName := trimAll "-" (regexReplaceAll "[^a-z0-9-]+" (lower (toString (default .Values.serviceName .Values.applicationName))) "-") -}}
 {{- $deploymentProfileName := trimAll "-" (regexReplaceAll "[^a-z0-9-]+" (lower (toString (.Values.deploymentProfileName | default ""))) "-") -}}
+{{- $hasHttpPort := ne (trim (toString (.Values.httpPort | default ""))) "" -}}
+{{- $hasTcpPort := ne (trim (toString (.Values.tcpPort | default ""))) "" -}}
+{{- $hasGrpcPort := ne (trim (toString (.Values.grpcPort | default ""))) "" -}}
+{{- $httpRouteEnabled := or $hasHttpPort (and (not $hasTcpPort) (not $hasGrpcPort)) -}}
+{{- $tcpRouteEnabled := or $hasTcpPort $hasGrpcPort -}}
 {{- $routeHash := "" -}}
 {{- if and $applicationName $deploymentProfileName -}}
   {{- $routeHash = trunc 10 (sha256sum (printf "%s-%s" $deploymentProfileName $applicationName)) -}}
@@ -47,6 +52,8 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
     prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+    prodhub.in/http-route-enabled: {{ $httpRouteEnabled | quote }}
+    prodhub.in/tcp-route-enabled: {{ $tcpRouteEnabled | quote }}
     {{- if .Values.deploymentProfileName }}
     prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
     {{- end }}
@@ -74,6 +81,8 @@ spec:
         app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         prodhub.in/application: {{ default .Values.serviceName .Values.applicationName | quote }}
         prodhub.in/ephemeral-environment: {{ .Values.namespace | quote }}
+        prodhub.in/http-route-enabled: {{ $httpRouteEnabled | quote }}
+        prodhub.in/tcp-route-enabled: {{ $tcpRouteEnabled | quote }}
         {{- if .Values.deploymentProfileName }}
         prodhub.in/deployment-profile: {{ .Values.deploymentProfileName | quote }}
         {{- end }}
