@@ -10,7 +10,7 @@ imagePullSecrets:
 coredns:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-corednsproduction-1629940-047fe06
+    tag: environmentorchestrator-corednsproduction-1629940-9aee413
   service:
     type: ClusterIP
     clusterIP: ""
@@ -20,7 +20,7 @@ coredns:
 haproxy:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-haproxyproduction-0862575-047fe06
+    tag: environmentorchestrator-haproxyproduction-0862575-9aee413
   service:
     type: ClusterIP
     port: 80
@@ -29,7 +29,7 @@ haproxy:
 listener:
   image:
     repository: harry2654/prodhub
-    tag: environmentorchestrator-listenerproduction-9472757-047fe06
+    tag: environmentorchestrator-listenerproduction-9472757-9aee413
 
 config:
   serviceDomain: "prodhub.in"
