@@ -1,0 +1,27 @@
+{{- if eq .Values.namespace "prodhub" }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ default .Release.Name .Values.baseReleaseName }}-trusted-callers
+  namespace: prodhub
+spec:
+  podSelector:
+    matchLabels:
+      release: {{ default .Release.Name .Values.baseReleaseName }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: gateway
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cicaptain
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudedgedeployer
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prodhub
+{{- end }}
